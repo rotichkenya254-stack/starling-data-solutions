@@ -4,7 +4,7 @@
  const money=n=>`${Number(n||0).toLocaleString("en-TZ")} TZS`;
  const date=v=>v?new Date(v).toLocaleString():"—";
  const msg=(id,s,ok=false)=>{const e=$(id);e.textContent=s;e.className="message"+(ok?" success":"");};
- async function api(url,opt={}){const h={...(opt.headers||{})};if(opt.body)h["Content-Type"]="application/json";if(token)h.Authorization=`Bearer ${token}`;const r=await fetch(url,{...opt,cache:"no-store",headers:h});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||`Request failed (${r.status})`);return d;}
+ async function api(url,opt={}){const h={...(opt.headers||{})};if(opt.body)h["Content-Type"]="application/json";if(token)h.Authorization=`Bearer ${token}`;const r=await fetch(url,{...opt,cache:"no-store",headers:h});const raw=await r.text();const contentType=r.headers.get("content-type")||"unknown";let d={};try{d=raw?JSON.parse(raw):{};}catch(_){d={_nonJson:true,_preview:raw.slice(0,400)};}if(!r.ok)throw Error(d.message||`Request failed (${r.status}); content-type=${contentType}; response=${raw.slice(0,250)}`);if(d._nonJson)throw Error(`Server returned non-JSON for ${url} (HTTP ${r.status}, ${contentType}). Preview: ${d._preview}`);return d;}
  function showApp(u){user=u;$("loginView").hidden=true;$("dashboard").hidden=false;$("logout").hidden=false;$("adminIdentity").textContent=u.name||u.email;loadAll();}
  function logout(){token="";user=null;localStorage.removeItem("tdh_token");$("dashboard").hidden=true;$("loginView").hidden=false;$("logout").hidden=true;}
  $("loginForm").addEventListener("submit",async e=>{e.preventDefault();msg("loginMessage","Signing in…");try{const d=await api("/api/auth/login",{method:"POST",body:JSON.stringify({email:$("email").value,password:$("password").value})});if(d.user?.role!=="admin")throw Error("This account does not have administrator access.");token=d.token;localStorage.setItem("tdh_token",token);showApp(d.user);}catch(err){msg("loginMessage",err.message);}});
@@ -29,14 +29,17 @@
   body.innerHTML='<tr><td colspan="6" class="empty">Loading offers from the database…</td></tr>';
   try{
    const first=await api("/api/admin/packages?page=1&limit=250");
-   if(!Array.isArray(first.packages)) throw Error("Admin API returned an unexpected response. Expected a packages array.");
+   const firstList=Array.isArray(first.packages)?first.packages:(Array.isArray(first.offers)?first.offers:(Array.isArray(first.data?.packages)?first.data.packages:null));
+   if(!firstList) throw Error(`Admin API response shape mismatch (HTTP 200). Keys: ${Object.keys(first).join(", ")||"(none)"}. Body: ${JSON.stringify(first).slice(0,500)}. Check that Render is running the matching backend version at /api/admin/packages.`);
+   first.packages=firstList;
    offers=[...first.packages];
    offerDiagnostics=first.diagnostics||first.pagination||null;
    const pages=Math.max(1,Number(first.pagination?.pages)||1);
    for(let page=2;page<=pages;page++){
     const next=await api(`/api/admin/packages?page=${page}&limit=250`);
-    if(!Array.isArray(next.packages)) throw Error(`Page ${page} did not return a packages array.`);
-    offers.push(...next.packages);
+    const nextList=Array.isArray(next.packages)?next.packages:(Array.isArray(next.offers)?next.offers:(Array.isArray(next.data?.packages)?next.data.packages:null));
+    if(!nextList) throw Error(`Page ${page} response shape mismatch. Keys: ${Object.keys(next).join(", ")||"(none)"}. Body: ${JSON.stringify(next).slice(0,400)}`);
+    offers.push(...nextList);
    }
    renderOffers();
    if(!offers.length){
