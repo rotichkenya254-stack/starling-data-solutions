@@ -65,6 +65,8 @@
     const loggedIn = Boolean(user);
     const navAuthButton = $("loginOpen");
     const registerButton = $("registerOpen");
+    const adminPanelLink = $("adminPanelLink");
+    if (adminPanelLink) adminPanelLink.hidden = !loggedIn || user.role !== "admin";
 
     // Keep the header actions clear and mutually exclusive:
     // logged out = Login + Register; logged in = Logout only.
