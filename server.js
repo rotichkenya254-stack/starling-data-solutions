@@ -15,10 +15,14 @@ const { seedAdmin } = require("./src/utils/seedAdmin");
 
 const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors());
+// Same-origin hosting needs no cross-origin access. Set CORS_ORIGINS to a
+// comma-separated allowlist only when a separate trusted frontend is used.
+const allowedOrigins = (process.env.CORS_ORIGINS || "").split(",").map(v => v.trim()).filter(Boolean);
+app.use(cors({ origin: allowedOrigins.length ? allowedOrigins : false }));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false }));
-app.use("/api", rateLimit({ windowMs: 15 * 60 * 1000, limit: 250 }));
+app.use("/api", rateLimit({ windowMs: 15 * 60 * 1000, limit: 250, standardHeaders: "draft-7", legacyHeaders: false }));
+app.use("/api/auth", rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: "draft-7", legacyHeaders: false }));
 app.get("/api/health", (_req, res) => res.json({
   ok: true,
   service: "Starling Data Solutions Tanzania",
