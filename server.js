@@ -21,6 +21,13 @@ const allowedOrigins = (process.env.CORS_ORIGINS || "").split(",").map(v => v.tr
 app.use(cors({ origin: allowedOrigins.length ? allowedOrigins : false }));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false }));
+app.use("/api", (req, res, next) => {
+  // API responses contain live account/catalogue data and must not be cached.
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+});
 app.use("/api", rateLimit({ windowMs: 15 * 60 * 1000, limit: 250, standardHeaders: "draft-7", legacyHeaders: false }));
 app.use("/api/auth", rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: "draft-7", legacyHeaders: false }));
 app.get("/api/health", (_req, res) => res.json({
