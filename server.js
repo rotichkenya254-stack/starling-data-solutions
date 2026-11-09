@@ -33,12 +33,14 @@ app.use("/api/auth", rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHe
 app.get("/api/health", (_req, res) => res.json({
   ok: true,
   service: "Starling Data Solutions Tanzania",
+  backend: "admin-routing-fix-2026-11-10",
   database: mongoose.connection.readyState === 1 ? "connected" : "not_connected"
 }));
 
 // Vercel serves files in /public from its static CDN. express.static also
 // keeps the project convenient to run locally.
-app.use(express.static(path.join(__dirname, "public")));
+// Static assets are mounted AFTER API routes so they cannot shadow API endpoints.
+
 app.get("/admin", (_req, res) => res.sendFile(path.join(__dirname, "public", "admin.html")));
 
 let dbPromise;
@@ -72,6 +74,16 @@ app.use("/api/packages", packageRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/payments", paymentRoutes);
+
+// Any unknown API URL must return JSON, never the storefront HTML.
+// This also makes missing/mis-deployed API routes immediately diagnosable.
+app.use("/api", (_req, res) => res.status(404).json({
+  message: "API endpoint not found. Confirm the latest backend deployment is active.",
+  service: "Starling Data Solutions Tanzania"
+}));
+
+// Serve frontend assets only after all API routes have had a chance to match.
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get("*", (_req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 
