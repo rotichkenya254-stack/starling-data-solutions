@@ -19,6 +19,11 @@ app.use(cors());
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false }));
 app.use("/api", rateLimit({ windowMs: 15 * 60 * 1000, limit: 250 }));
+app.get("/api/health", (_req, res) => res.json({
+  ok: true,
+  service: "Starling Data Solutions Tanzania",
+  database: mongoose.connection.readyState === 1 ? "connected" : "not_connected"
+}));
 
 // Vercel serves files in /public from its static CDN. express.static also
 // keeps the project convenient to run locally.
@@ -49,12 +54,6 @@ app.use("/api", async (_req, res, next) => {
     res.status(503).json({ message: "Database is temporarily unavailable." });
   }
 });
-
-app.get("/api/health", (_req, res) => res.json({
-  ok: true,
-  service: "Starling Data Solutions Tanzania",
-  database: mongoose.connection.readyState === 1 ? "connected" : "not_connected"
-}));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/packages", packageRoutes);
