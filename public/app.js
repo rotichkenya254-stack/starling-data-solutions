@@ -4,13 +4,25 @@
   let token = localStorage.getItem("tdh_token") || "";
   let selectedNetwork = "Vodacom", selectedPackage = null, authMode = "register", packages = [];
   const text = (id, value) => { if($(id)) $(id).textContent=value; };
-  const show = id => $(id)?.classList.add("open");
-  const hide = id => $(id)?.classList.remove("open");
+  const show = id => {
+    const el = $(id);
+    if (!el) return;
+    el.classList.add("open");
+    el.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  };
+  const hide = id => {
+    const el = $(id);
+    if (!el) return;
+    el.classList.remove("open");
+    el.setAttribute("aria-hidden", "true");
+    if (!document.querySelector(".modal-backdrop.open")) document.body.classList.remove("modal-open");
+    if (id === "authModal" && $("authPassword")) $("authPassword").value = "";
+  };
   if ($("year")) text("year", new Date().getFullYear());
 
   on("menuBtn","click",()=>$("topbar")?.classList.toggle("menu-open"));
   document.querySelectorAll(".topbar nav a").forEach(a=>a.addEventListener("click",()=>$("topbar")?.classList.remove("menu-open")));
-  on("heroRegister","click",()=>openAuth("register"));
   on("loginOpen","click",()=>openAuth("login"));
   on("registerOpen","click",()=>openAuth("register"));
   on("accountLogin","click",()=>openAuth("login"));
@@ -19,7 +31,12 @@
   on("checkoutClose","click",()=>hide("checkoutModal"));
   on("switchAuth","click",()=>openAuth(authMode==="register"?"login":"register"));
   ["authModal","checkoutModal"].forEach(id=>on(id,"click",e=>{if(e.target===$(id))hide(id);}));
-  on("heroLoginForm","submit",e=>{e.preventDefault();openAuth("login");$("authEmail").value=$("heroEmail").value;$("authPassword").value=$("heroPassword").value;$("authForm").requestSubmit();});
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if ($("authModal")?.classList.contains("open")) hide("authModal");
+      else if ($("checkoutModal")?.classList.contains("open")) hide("checkoutModal");
+    }
+  });
   on("authForm","submit",submitAuth);
   on("logoutBtn","click",()=>{token="";localStorage.removeItem("tdh_token");updateAccount(null);toast("You have signed out.");});
 
@@ -29,7 +46,11 @@
     const response=await fetch(url,{...options,headers}); const data=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(data.message||`Request failed (${response.status}).`);return data;
   }
-  function openAuth(mode){authMode=mode;show("authModal");text("authTitle",mode==="register"?"Create your account":"Welcome back");text("authEyebrow",mode==="register"?"WELCOME TO STARLING":"YOUR STARLING ACCOUNT");text("authDesc",mode==="register"?"Manage your bundles and orders in one place.":"Sign in to view your account and orders.");if($("nameField"))$("nameField").hidden=mode!=="register";if($("phoneField"))$("phoneField").hidden=mode!=="register";$("authName").required=mode==="register";$("authPhone").required=mode==="register";text("authSubmit",mode==="register"?"Create account":"Log in");text("switchText",mode==="register"?"Already have an account?":"New to Starling?");text("switchAuth",mode==="register"?"Log in":"Create account");text("authMessage","");}
+  function openAuth(mode){authMode=mode;show("authModal");text("authTitle",mode==="register"?"Create your account":"Welcome back");text("authEyebrow",mode==="register"?"WELCOME TO STARLING":"YOUR STARLING ACCOUNT");text("authDesc",mode==="register"?"Manage your bundles and orders in one place.":"Sign in to view your account and orders.");if($("nameField"))$("nameField").hidden=mode!=="register";if($("phoneField"))$("phoneField").hidden=mode!=="register";$("authName").required=mode==="register";$("authPhone").required=mode==="register";text("authSubmit",mode==="register"?"Create account":"Log in");text("switchText",mode==="register"?"Already have an account?":"New to Starling?");text("switchAuth",mode==="register"?"Log in":"Create account");text("authMessage","");
+    if ($("authPassword")) $("authPassword").value = "";
+    const firstField = mode === "register" ? $("authName") : $("authEmail");
+    if (firstField) setTimeout(() => firstField.focus(), 0);
+  }
   async function submitAuth(e){e.preventDefault();const submit=$("authSubmit");submit.disabled=true;text("authMessage","Please wait…");const body={email:$("authEmail").value.trim(),password:$("authPassword").value};if(authMode==="register")Object.assign(body,{name:$("authName").value.trim(),phone:$("authPhone").value.trim()});try{const result=await api(`/api/auth/${authMode}`,{method:"POST",body:JSON.stringify(body)});token=result.token;localStorage.setItem("tdh_token",token);hide("authModal");updateAccount(result.user);await loadOrders();toast(`Welcome${result.user?.name?", "+result.user.name:""}!`);}catch(err){text("authMessage",err.message);}finally{submit.disabled=false;}}
   function updateAccount(user){if(!user){text("accountWelcome","Sign in to view your profile and recent orders.");text("profileName","Guest");text("profileEmail","Not signed in");text("profilePhone","");if($("logoutBtn"))$("logoutBtn").hidden=true;text("ordersList","Sign in to view your transactions.");return;}text("accountWelcome","Your Starling account details and order history.");text("profileName",user.name||"Customer");text("profileEmail",user.email||"");text("profilePhone",user.phone||"");if($("logoutBtn"))$("logoutBtn").hidden=false;}
   async function restoreSession(){if(!token){updateAccount(null);return;}try{const r=await api("/api/auth/me");updateAccount(r.user);await loadOrders();}catch{token="";localStorage.removeItem("tdh_token");updateAccount(null);}}
