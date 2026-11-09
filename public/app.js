@@ -1,124 +1,45 @@
-const $ = id => document.getElementById(id);
-let token = localStorage.getItem("tdh_token") || "";
-let selectedNetwork = "Vodacom";
-let selectedPackage = null;
-let authMode = "register";
-let packages = [];
+(() => {
+  const $ = id => document.getElementById(id);
+  const on = (id, event, handler) => { const el=$(id); if(el) el.addEventListener(event, handler); };
+  let token = localStorage.getItem("tdh_token") || "";
+  let selectedNetwork = "Vodacom", selectedPackage = null, authMode = "register", packages = [];
+  const text = (id, value) => { if($(id)) $(id).textContent=value; };
+  const show = id => $(id)?.classList.add("open");
+  const hide = id => $(id)?.classList.remove("open");
+  if ($("year")) text("year", new Date().getFullYear());
 
-$("year").textContent = new Date().getFullYear();
-$("menuBtn").addEventListener("click", () => $("topbar")?.classList.toggle("menu-open"));
+  on("menuBtn","click",()=>$("topbar")?.classList.toggle("menu-open"));
+  document.querySelectorAll(".topbar nav a").forEach(a=>a.addEventListener("click",()=>$("topbar")?.classList.remove("menu-open")));
+  on("heroRegister","click",()=>openAuth("register"));
+  on("loginOpen","click",()=>openAuth("login"));
+  on("registerOpen","click",()=>openAuth("register"));
+  on("accountLogin","click",()=>openAuth("login"));
+  on("forgotPassword","click",()=>toast("Please contact support@starling.co.tz for password assistance."));
+  on("modalClose","click",()=>hide("authModal"));
+  on("checkoutClose","click",()=>hide("checkoutModal"));
+  on("switchAuth","click",()=>openAuth(authMode==="register"?"login":"register"));
+  ["authModal","checkoutModal"].forEach(id=>on(id,"click",e=>{if(e.target===$(id))hide(id);}));
+  on("heroLoginForm","submit",e=>{e.preventDefault();openAuth("login");$("authEmail").value=$("heroEmail").value;$("authPassword").value=$("heroPassword").value;$("authForm").requestSubmit();});
+  on("authForm","submit",submitAuth);
+  on("logoutBtn","click",()=>{token="";localStorage.removeItem("tdh_token");updateAccount(null);toast("You have signed out.");});
 
-
-$("heroRegister").onclick = () => openAuth("register");
-$("heroLoginForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  openAuth("login");
-  $("authEmail").value = $("heroEmail").value;
-  $("authPassword").value = $("heroPassword").value;
-  $("authForm").requestSubmit();
-});
-$("forgotPassword").onclick = () => toast("Please contact support@starling.co.tz for password assistance.");
-document.querySelectorAll("[data-premium]").forEach(btn => btn.addEventListener("click", () => {
-  document.querySelectorAll("[data-premium]").forEach(item => item.classList.toggle("selected", item === btn));
-}));
-$("upgradeNow").onclick = () => {
-  const plan = document.querySelector("[data-premium].selected")?.dataset.premium || "Daily";
-  if (!token) { openAuth("login"); toast("Please sign in to continue with the " + plan + " plan."); }
-  else toast("The " + plan + " premium checkout needs to be enabled in the subscription service.");
-};
-
-function toast(message) {
-  $("toast").textContent = message; $("toast").classList.add("show");
-  setTimeout(() => $("toast").classList.remove("show"), 3000);
-}
-async function api(url, options = {}) {
-  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  const response = await fetch(url, { ...options, headers });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.message || "Request failed.");
-  return data;
-}
-function openAuth(mode) {
-  authMode = mode;
-  $("authModal").classList.add("open");
-  $("authTitle").textContent = mode === "register" ? "Create your account" : "Welcome back";
-  $("authEyebrow").textContent = mode === "register" ? "WELCOME TO STARLING" : "YOUR STARLING ACCOUNT";
-  $("authDesc").textContent = mode === "register" ? "Manage your bundles and orders in one place." : "Sign in to view your account and orders.";
-  $("nameField").style.display = mode === "register" ? "grid" : "none";
-  $("phoneField").style.display = mode === "register" ? "grid" : "none";
-  $("authName").required = mode === "register"; $("authPhone").required = mode === "register";
-  $("authSubmit").textContent = mode === "register" ? "Create account" : "Log in";
-  $("switchText").textContent = mode === "register" ? "Already have an account?" : "New to Starling?";
-  $("switchAuth").textContent = mode === "register" ? "Log in" : "Create account";
-  $("authMessage").textContent = "";
-}
-$("loginOpen").onclick = () => openAuth("login");
-$("registerOpen").onclick = $("ctaRegister").onclick = () => openAuth("register");
-$("modalClose").onclick = () => $("authModal").classList.remove("open");
-$("checkoutClose").onclick = () => $("checkoutModal").classList.remove("open");
-$("switchAuth").onclick = () => openAuth(authMode === "register" ? "login" : "register");
-
-$("authForm").addEventListener("submit", async e => {
-  e.preventDefault(); $("authMessage").textContent = "Please wait…";
-  const body = { email: $("authEmail").value, password: $("authPassword").value };
-  if (authMode === "register") Object.assign(body, { name: $("authName").value, phone: $("authPhone").value });
-  try {
-    const result = await api(`/api/auth/${authMode}`, { method: "POST", body: JSON.stringify(body) });
-    token = result.token; localStorage.setItem("tdh_token", token);
-    $("authModal").classList.remove("open"); toast(`Welcome${result.user?.name ? ", " + result.user.name : ""}!`);
-  } catch (err) { $("authMessage").textContent = err.message; }
-});
-
-async function loadPackages() {
-  try {
-    const data = await api("/api/packages"); packages = data.packages || []; renderPackages();
-  } catch { $("packageGrid").innerHTML = '<div class="empty-state">Unable to load packages right now. Please try again later.</div>'; }
-}
-function renderPackages() {
-  const list = packages.filter(p => p.network === selectedNetwork);
-  $("packageTitle").textContent = `${selectedNetwork} bundles`;
-  if (!list.length) {
-    $("packageGrid").innerHTML = '<div class="empty-state">No packages have been published for this network yet. Please check back soon.</div>'; return;
+  function toast(message){const el=$("toast");if(!el)return;el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),3500);}
+  async function api(url,options={}){
+    const headers={...(options.headers||{})}; if(options.body && !(options.body instanceof FormData)) headers["Content-Type"]="application/json"; if(token)headers.Authorization=`Bearer ${token}`;
+    const response=await fetch(url,{...options,headers}); const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.message||`Request failed (${response.status}).`);return data;
   }
-  $("packageGrid").innerHTML = list.map(p => `<article class="package-card"><div class="package-network">${escapeHtml(p.network)}</div><h3>${escapeHtml(p.dataAmount)}</h3><p>${escapeHtml(p.name)}</p><div class="package-meta"><span>Validity</span><b>${escapeHtml(p.validity)}</b></div><div class="package-meta"><span>Price</span><span class="price">${Number(p.priceTzs).toLocaleString("en-TZ")} TZS</span></div><button class="btn btn-primary" data-buy="${p._id}">Choose bundle →</button></article>`).join("");
-  document.querySelectorAll("[data-buy]").forEach(btn => btn.onclick = () => {
-    selectedPackage = packages.find(p => p._id === btn.dataset.buy);
-    if (!token) { openAuth("login"); toast("Please sign in before placing an order."); return; }
-    $("checkoutPackage").textContent = `${selectedPackage.network} · ${selectedPackage.dataAmount} · ${Number(selectedPackage.priceTzs).toLocaleString("en-TZ")} TZS`;
-    $("checkoutModal").classList.add("open");
-  });
-}
-function escapeHtml(value) { return String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
-document.querySelectorAll(".network-card").forEach(btn => btn.addEventListener("click", () => {
-  selectedNetwork = btn.dataset.network;
-  document.querySelectorAll(".network-card").forEach(b => b.classList.toggle("selected", b === btn));
-  renderPackages();
-}));
-$("checkoutForm").addEventListener("submit", async e => {
-  e.preventDefault(); $("checkoutMessage").textContent = "Creating order…";
-  try {
-    const result = await api("/api/orders", { method: "POST", body: JSON.stringify({ packageId: selectedPackage._id, recipientPhone: $("recipientPhone").value }) });
-    const payment = await api("/api/payments/initiate", { method: "POST", body: JSON.stringify({
-      orderId: result.order._id,
-      payerPhone: $("payerPhone").value,
-      provider: $("payerProvider").value
-    }) });
-    $("checkoutMessage").textContent = payment.message + " Reference: " + (payment.reference || "pending");
-    if (!document.getElementById("checkPaymentStatus")) {
-      const check = document.createElement("button");
-      check.type = "button"; check.id = "checkPaymentStatus"; check.className = "btn btn-ghost full-btn";
-      check.textContent = "Check payment status";
-      $("checkoutForm").appendChild(check);
-      check.onclick = async () => {
-        check.disabled = true; check.textContent = "Checking…";
-        try {
-          const status = await api(`/api/payments/status/${result.order._id}`);
-          $("checkoutMessage").textContent = status.message + " Payment: " + status.paymentStatus + ". Order: " + status.orderStatus + ".";
-        } catch (err) { $("checkoutMessage").textContent = err.message; }
-        finally { check.disabled = false; check.textContent = "Check payment status"; }
-      };
-    }
-  } catch (err) { $("checkoutMessage").textContent = err.message; }
-});
-loadPackages();
+  function openAuth(mode){authMode=mode;show("authModal");text("authTitle",mode==="register"?"Create your account":"Welcome back");text("authEyebrow",mode==="register"?"WELCOME TO STARLING":"YOUR STARLING ACCOUNT");text("authDesc",mode==="register"?"Manage your bundles and orders in one place.":"Sign in to view your account and orders.");if($("nameField"))$("nameField").hidden=mode!=="register";if($("phoneField"))$("phoneField").hidden=mode!=="register";$("authName").required=mode==="register";$("authPhone").required=mode==="register";text("authSubmit",mode==="register"?"Create account":"Log in");text("switchText",mode==="register"?"Already have an account?":"New to Starling?");text("switchAuth",mode==="register"?"Log in":"Create account");text("authMessage","");}
+  async function submitAuth(e){e.preventDefault();const submit=$("authSubmit");submit.disabled=true;text("authMessage","Please wait…");const body={email:$("authEmail").value.trim(),password:$("authPassword").value};if(authMode==="register")Object.assign(body,{name:$("authName").value.trim(),phone:$("authPhone").value.trim()});try{const result=await api(`/api/auth/${authMode}`,{method:"POST",body:JSON.stringify(body)});token=result.token;localStorage.setItem("tdh_token",token);hide("authModal");updateAccount(result.user);await loadOrders();toast(`Welcome${result.user?.name?", "+result.user.name:""}!`);}catch(err){text("authMessage",err.message);}finally{submit.disabled=false;}}
+  function updateAccount(user){if(!user){text("accountWelcome","Sign in to view your profile and recent orders.");text("profileName","Guest");text("profileEmail","Not signed in");text("profilePhone","");if($("logoutBtn"))$("logoutBtn").hidden=true;text("ordersList","Sign in to view your transactions.");return;}text("accountWelcome","Your Starling account details and order history.");text("profileName",user.name||"Customer");text("profileEmail",user.email||"");text("profilePhone",user.phone||"");if($("logoutBtn"))$("logoutBtn").hidden=false;}
+  async function restoreSession(){if(!token){updateAccount(null);return;}try{const r=await api("/api/auth/me");updateAccount(r.user);await loadOrders();}catch{token="";localStorage.removeItem("tdh_token");updateAccount(null);}}
+  async function loadOrders(){if(!token)return;const box=$("ordersList");if(!box)return;box.textContent="Loading transactions…";try{const r=await api("/api/orders/mine");if(!r.orders?.length){box.textContent="No transactions yet. Your bundle orders will appear here.";return;}box.innerHTML=r.orders.map(o=>`<div class="order-row"><div><b>${escapeHtml(o.network)} · ${escapeHtml(o.package?.dataAmount||"Data bundle")}</b><small>${escapeHtml(o.recipientPhone)} · ${new Date(o.createdAt).toLocaleString()}</small><small>${Number(o.amountTzs||0).toLocaleString("en-TZ")} TZS</small></div><span class="status-pill">${escapeHtml(o.status||"pending").replaceAll("_"," ")}</span></div>`).join("");}catch(e){box.textContent=e.message;}}
+  async function loadPackages(){try{const data=await api("/api/packages");packages=data.packages||[];renderPackages();}catch(e){const box=$("packageGrid");if(box)box.textContent=e.message;}}
+  function renderPackages(){const box=$("packageGrid");if(!box)return;const list=packages.filter(p=>p.network===selectedNetwork);text("packageTitle",`${selectedNetwork} bundles`);if(!list.length){box.innerHTML='<div class="empty-state">No packages have been published for this network yet. Please check back soon.</div>';return;}box.innerHTML=list.map(p=>`<article class="package-card"><div class="package-network">${escapeHtml(p.network)}</div><h3>${escapeHtml(p.dataAmount)}</h3><p>${escapeHtml(p.name)}</p><div class="package-meta"><span>Validity</span><b>${escapeHtml(p.validity)}</b></div><div class="package-meta"><span>Price</span><span class="price">${Number(p.priceTzs).toLocaleString("en-TZ")} TZS</span></div><button class="btn btn-primary" data-buy="${escapeHtml(p._id)}">Choose bundle →</button></article>`).join("");box.querySelectorAll("[data-buy]").forEach(btn=>btn.addEventListener("click",()=>{selectedPackage=packages.find(p=>p._id===btn.dataset.buy);if(!token){openAuth("login");toast("Please sign in before placing an order.");return;}text("checkoutPackage",`${selectedPackage.network} · ${selectedPackage.dataAmount} · ${Number(selectedPackage.priceTzs).toLocaleString("en-TZ")} TZS`);text("checkoutMessage","");show("checkoutModal");}));}
+  function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  document.querySelectorAll(".network-card").forEach(btn=>btn.addEventListener("click",()=>{selectedNetwork=btn.dataset.network;document.querySelectorAll(".network-card").forEach(b=>b.classList.toggle("selected",b===btn));renderPackages();}));
+  document.querySelectorAll("[data-premium]").forEach(btn=>btn.addEventListener("click",()=>document.querySelectorAll("[data-premium]").forEach(b=>b.classList.toggle("selected",b===btn))));
+  on("upgradeNow","click",()=>{const plan=document.querySelector("[data-premium].selected")?.dataset.premium||"Daily";if(!token){openAuth("login");toast(`Please sign in to continue with the ${plan} plan.`);}else toast(`You selected the ${plan} plan. Premium checkout is not configured yet.`);});
+  on("checkoutForm","submit",async e=>{e.preventDefault();if(!selectedPackage){text("checkoutMessage","Please select a bundle first.");return;}const submit=$("checkoutForm").querySelector('button[type="submit"],button:not([type])');if(submit)submit.disabled=true;text("checkoutMessage","Creating order and requesting payment…");try{const created=await api("/api/orders",{method:"POST",body:JSON.stringify({packageId:selectedPackage._id,recipientPhone:$("recipientPhone").value.trim()})});const payment=await api("/api/payments/initiate",{method:"POST",body:JSON.stringify({orderId:created.order._id,payerPhone:$("payerPhone").value.trim(),provider:$("payerProvider").value})});text("checkoutMessage",`${payment.message} Reference: ${payment.reference||"pending"}`);let check=$("checkPaymentStatus");if(!check){check=document.createElement("button");check.type="button";check.id="checkPaymentStatus";check.className="btn btn-ghost full-btn";check.textContent="Check payment status";$("checkoutForm").appendChild(check);}check.onclick=async()=>{check.disabled=true;try{const status=await api(`/api/payments/status/${created.order._id}`);text("checkoutMessage",`${status.message} Payment: ${status.paymentStatus}. Order: ${status.orderStatus}.`);await loadOrders();}catch(err){text("checkoutMessage",err.message);}finally{check.disabled=false;}};await loadOrders();}catch(err){text("checkoutMessage",err.message);}finally{if(submit)submit.disabled=false;}});
+  loadPackages();restoreSession();
+})();
