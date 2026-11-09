@@ -28,6 +28,7 @@ app.get("/api/health", (_req, res) => res.json({
 // Vercel serves files in /public from its static CDN. express.static also
 // keeps the project convenient to run locally.
 app.use(express.static(path.join(__dirname, "public")));
+app.get("/admin", (_req, res) => res.sendFile(path.join(__dirname, "public", "admin.html")));
 
 let dbPromise;
 async function connectDatabase() {
