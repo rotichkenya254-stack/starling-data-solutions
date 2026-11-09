@@ -1,1 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102b59">
+  <title>Starling Data Solutions Tanzania | Affordable Data Bundles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-icon">⌁</span><span>STARLING<span class="brand-accent"> DATA</span><small>DATA SOLUTIONS TANZANIA</small></span></a>
+    <nav><a href="#networks">Networks</a><a href="#how">How it works</a><a href="#support">Support</a></nav>
+    <div class="nav-actions"><button class="btn btn-ghost" id="loginOpen">Log in</button><button class="btn btn-primary" id="registerOpen">Create account</button></div>
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+  </header>
 
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <div class="eyebrow"><span class="pulse"></span> TANZANIA'S DATA BUNDLE STORE</div>
+        <h1>More data.<br><span>More possibilities.</span></h1>
+        <p class="hero-copy">Get connected with affordable mobile data bundles for your favourite network. Simple ordering, clear pricing and support when you need it.</p>
+        <div class="hero-actions"><a class="btn btn-light" href="#networks">Explore bundles <b>→</b></a><span class="secure-note">🔒 Secure ordering experience</span></div>
+        <div class="hero-stats"><div><b>4</b><span>Mobile networks</span></div><i></i><div><b>TZS</b><span>Local currency</span></div><i></i><div><b>24/7</b><span>Online ordering</span></div></div>
+      </div>
+      <div class="hero-art">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="phone-card"><div class="phone-top"><span>STARLING</span><span class="signal">● ● ●</span></div><div class="phone-label">YOUR CONNECTION</div><div class="phone-big">∞ <small>possibilities</small></div><div class="phone-line"></div><div class="phone-pack"><span>Popular bundles</span><b>Choose your network</b></div><div class="mini-networks"><span class="voda">V</span><span class="halo">H</span><span class="air">A</span><span class="yas">Y</span></div><div class="phone-bottom">Fast • Simple • Convenient</div></div>
+        <div class="float-chip chip-a">⚡ Easy ordering</div><div class="float-chip chip-b">🇹🇿 Made for Tanzania</div>
+      </div>
+    </section>
+
+    <section class="trust-strip"><span>BUILT FOR TANZANIA</span><b>Vodacom</b><b>Halotel</b><b>Airtel</b><b>YAS</b></section>
+
+    <section class="section" id="networks">
+      <div class="section-heading"><div><div class="eyebrow dark-eyebrow">CHOOSE YOUR NETWORK</div><h2>Find your connection</h2><p>Select a mobile network to explore available data packages.</p></div><span class="currency-pill">Prices in <b>TZS</b></span></div>
+      <div class="network-grid">
+        <button class="network-card selected" data-network="Vodacom"><span class="network-logo voda">V</span><span><b>Vodacom</b><small>Explore bundles</small></span><span class="arrow">↗</span></button>
+        <button class="network-card" data-network="Halotel"><span class="network-logo halo">H</span><span><b>Halotel</b><small>Explore bundles</small></span><span class="arrow">↗</span></button>
+        <button class="network-card" data-network="Airtel"><span class="network-logo air">A</span><span><b>Airtel</b><small>Explore bundles</small></span><span class="arrow">↗</span></button>
+        <button class="network-card" data-network="YAS"><span class="network-logo yas">Y</span><span><b>YAS</b><small>Explore bundles</small></span><span class="arrow">↗</span></button>
+      </div>
+      <div class="package-heading"><div><h3 id="packageTitle">Vodacom bundles</h3><p>Choose a package that works for you.</p></div><span class="live-label"><span></span> Available packages</span></div>
+      <div id="packageGrid" class="package-grid"><div class="empty-state">Packages will appear here once the administrator adds them.</div></div>
+    </section>
+
+    <section class="how-section" id="how"><div class="section-heading centered"><div class="eyebrow dark-eyebrow">THREE SIMPLE STEPS</div><h2>Getting connected is easy</h2><p>A straightforward experience from choosing a bundle to tracking your order.</p></div>
+      <div class="steps"><article><span>01</span><div class="step-icon">▦</div><h3>Choose a bundle</h3><p>Select your network and preferred data package.</p></article><article><span>02</span><div class="step-icon">⌁</div><h3>Enter your number</h3><p>Provide the Tanzanian mobile number receiving the bundle.</p></article><article><span>03</span><div class="step-icon">✓</div><h3>Complete checkout</h3><p>Pay through an enabled payment method and track your order.</p></article></div>
+    </section>
+    <section class="cta" id="support"><div><div class="eyebrow">YOUR DATA, YOUR WAY</div><h2>Ready to stay connected?</h2><p>Create an account to manage your orders in one place.</p></div><button class="btn btn-light" id="ctaRegister">Get started <b>→</b></button></section>
+  </main>
+  <footer><a class="brand footer-brand" href="#"><span class="brand-icon">⌁</span><span>STARLING<span class="brand-accent"> DATA</span><small>DATA SOLUTIONS TANZANIA</small></span></a><span>© <span id="year"></span> Starling Data Solutions Tanzania. All rights reserved.</span><span>Customer-first connectivity.</span></footer>
+
+  <div class="modal-backdrop" id="authModal"><div class="modal"><button class="modal-close" id="modalClose">×</button><div class="modal-mark">⌁</div><div class="eyebrow dark-eyebrow" id="authEyebrow">WELCOME TO STARLING</div><h2 id="authTitle">Create your account</h2><p id="authDesc">Manage your bundles and orders in one place.</p>
+    <form id="authForm"><div class="field" id="nameField"><label>Full name</label><input id="authName" placeholder="Your full name"></div><div class="field"><label>Email address</label><input id="authEmail" type="email" required placeholder="you@example.com"></div><div class="field" id="phoneField"><label>Mobile number</label><input id="authPhone" placeholder="+255 7XX XXX XXX"></div><div class="field"><label>Password</label><input id="authPassword" type="password" minlength="8" required placeholder="At least 8 characters"></div><button class="btn btn-primary full-btn" id="authSubmit">Create account</button></form><div class="form-message" id="authMessage"></div><p class="switch-auth"><span id="switchText">Already have an account?</span> <button id="switchAuth">Log in</button></p>
+  </div></div>
+  <div class="modal-backdrop" id="checkoutModal"><div class="modal"><button class="modal-close" id="checkoutClose">×</button><div class="eyebrow dark-eyebrow">ORDER DETAILS</div><h2>Almost connected</h2><p id="checkoutPackage">Selected bundle</p><form id="checkoutForm"><div class="field"><label>Tanzanian bundle recipient</label><input id="recipientPhone" required placeholder="+255 7XX XXX XXX"></div><div class="field"><label>Tanzanian mobile-money payer number</label><input id="payerPhone" placeholder="07XX XXX XXX" required></div><div class="field"><label>Payment network</label><select id="payerProvider" required><option value="">Select network</option><option value="VODACOM">Vodacom</option><option value="YAS">YAS</option><option value="AIRTEL">Airtel</option><option value="HALOTEL">Halotel</option></select></div><button class="btn btn-primary full-btn">Create order &amp; request payment</button></form><div class="form-message" id="checkoutMessage"></div><small class="disclaimer">Payments use the Tanzania Global API collection flow. Live checkout remains disabled until your OptimaPay Tanzania API credentials are configured and tested.</small></div></div>
+  <div class="toast" id="toast"></div>
+  <script src="/app.js"></script>
+</body></html>
