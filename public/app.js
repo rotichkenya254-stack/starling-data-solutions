@@ -23,7 +23,10 @@
 
   on("menuBtn","click",()=>$("topbar")?.classList.toggle("menu-open"));
   document.querySelectorAll(".topbar nav a").forEach(a=>a.addEventListener("click",()=>$("topbar")?.classList.remove("menu-open")));
-  on("loginOpen","click",()=>openAuth("login"));
+  on("loginOpen","click",()=>{
+    if (token) signOut();
+    else openAuth("login");
+  });
   on("registerOpen","click",()=>openAuth("register"));
   on("accountLogin","click",()=>openAuth("login"));
   on("forgotPassword","click",()=>toast("Please contact support@starling.co.tz for password assistance."));
@@ -38,7 +41,13 @@
     }
   });
   on("authForm","submit",submitAuth);
-  on("logoutBtn","click",()=>{token="";localStorage.removeItem("tdh_token");updateAccount(null);toast("You have signed out.");});
+  on("logoutBtn","click",signOut);
+  function signOut(){
+    token="";
+    localStorage.removeItem("tdh_token");
+    updateAccount(null);
+    toast("You have signed out successfully.");
+  }
 
   function toast(message){const el=$("toast");if(!el)return;el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),3500);}
   async function api(url,options={}){
@@ -52,7 +61,36 @@
     if (firstField) setTimeout(() => firstField.focus(), 0);
   }
   async function submitAuth(e){e.preventDefault();const submit=$("authSubmit");submit.disabled=true;text("authMessage","Please wait…");const body={email:$("authEmail").value.trim(),password:$("authPassword").value};if(authMode==="register")Object.assign(body,{name:$("authName").value.trim(),phone:$("authPhone").value.trim()});try{const result=await api(`/api/auth/${authMode}`,{method:"POST",body:JSON.stringify(body)});token=result.token;localStorage.setItem("tdh_token",token);hide("authModal");updateAccount(result.user);await loadOrders();toast(`Welcome${result.user?.name?", "+result.user.name:""}!`);}catch(err){text("authMessage",err.message);}finally{submit.disabled=false;}}
-  function updateAccount(user){if(!user){text("accountWelcome","Sign in to view your profile and recent orders.");text("profileName","Guest");text("profileEmail","Not signed in");text("profilePhone","");if($("logoutBtn"))$("logoutBtn").hidden=true;text("ordersList","Sign in to view your transactions.");return;}text("accountWelcome","Your Starling account details and order history.");text("profileName",user.name||"Customer");text("profileEmail",user.email||"");text("profilePhone",user.phone||"");if($("logoutBtn"))$("logoutBtn").hidden=false;}
+  function updateAccount(user){
+    const loggedIn = Boolean(user);
+    const navAuthButton = $("loginOpen");
+    const registerButton = $("registerOpen");
+
+    // Keep the header actions clear and mutually exclusive:
+    // logged out = Login + Register; logged in = Logout only.
+    if (navAuthButton) {
+      navAuthButton.textContent = loggedIn ? "↪ Logout" : "♙ Login";
+      navAuthButton.setAttribute("aria-label", loggedIn ? "Log out of your account" : "Log in to your account");
+      navAuthButton.classList.toggle("btn-primary", loggedIn);
+      navAuthButton.classList.toggle("btn-ghost", !loggedIn);
+    }
+    if (registerButton) registerButton.hidden = loggedIn;
+
+    if(!user){
+      text("accountWelcome","Sign in to view your profile and recent orders.");
+      text("profileName","Guest");
+      text("profileEmail","Not signed in");
+      text("profilePhone","");
+      if($("logoutBtn"))$("logoutBtn").hidden=true;
+      text("ordersList","Sign in to view your transactions.");
+      return;
+    }
+    text("accountWelcome","Your Starling account details and order history.");
+    text("profileName",user.name||"Customer");
+    text("profileEmail",user.email||"");
+    text("profilePhone",user.phone||"");
+    if($("logoutBtn"))$("logoutBtn").hidden=false;
+  }
   async function restoreSession(){if(!token){updateAccount(null);return;}try{const r=await api("/api/auth/me");updateAccount(r.user);await loadOrders();}catch{token="";localStorage.removeItem("tdh_token");updateAccount(null);}}
   async function loadOrders(){if(!token)return;const box=$("ordersList");if(!box)return;box.textContent="Loading transactions…";try{const r=await api("/api/orders/mine");if(!r.orders?.length){box.textContent="No transactions yet. Your bundle orders will appear here.";return;}box.innerHTML=r.orders.map(o=>`<div class="order-row"><div><b>${escapeHtml(o.network)} · ${escapeHtml(o.package?.dataAmount||"Data bundle")}</b><small>${escapeHtml(o.recipientPhone)} · ${new Date(o.createdAt).toLocaleString()}</small><small>${Number(o.amountTzs||0).toLocaleString("en-TZ")} TZS</small></div><span class="status-pill">${escapeHtml(o.status||"pending").replaceAll("_"," ")}</span></div>`).join("");}catch(e){box.textContent=e.message;}}
   async function loadPackages(){try{const data=await api("/api/packages");packages=data.packages||[];renderPackages();}catch(e){const box=$("packageGrid");if(box)box.textContent=e.message;}}
