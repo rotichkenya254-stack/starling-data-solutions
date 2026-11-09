@@ -4,7 +4,7 @@
  const money=n=>`${Number(n||0).toLocaleString("en-TZ")} TZS`;
  const date=v=>v?new Date(v).toLocaleString():"—";
  const msg=(id,s,ok=false)=>{const e=$(id);e.textContent=s;e.className="message"+(ok?" success":"");};
- async function api(url,opt={}){const h={...(opt.headers||{})};if(opt.body)h["Content-Type"]="application/json";if(token)h.Authorization=`Bearer ${token}`;const r=await fetch(url,{...opt,headers:h});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||`Request failed (${r.status})`);return d;}
+ async function api(url,opt={}){const h={...(opt.headers||{})};if(opt.body)h["Content-Type"]="application/json";if(token)h.Authorization=`Bearer ${token}`;const r=await fetch(url,{...opt,cache:"no-store",headers:h});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||`Request failed (${r.status})`);return d;}
  function showApp(u){user=u;$("loginView").hidden=true;$("dashboard").hidden=false;$("logout").hidden=false;$("adminIdentity").textContent=u.name||u.email;loadAll();}
  function logout(){token="";user=null;localStorage.removeItem("tdh_token");$("dashboard").hidden=true;$("loginView").hidden=false;$("logout").hidden=true;}
  $("loginForm").addEventListener("submit",async e=>{e.preventDefault();msg("loginMessage","Signing in…");try{const d=await api("/api/auth/login",{method:"POST",body:JSON.stringify({email:$("email").value,password:$("password").value})});if(d.user?.role!=="admin")throw Error("This account does not have administrator access.");token=d.token;localStorage.setItem("tdh_token",token);showApp(d.user);}catch(err){msg("loginMessage",err.message);}});
@@ -23,8 +23,34 @@
  async function loadAll(){await Promise.all([loadOverview(),loadOffers(),loadOrders(),loadClients()]);}
  async function loadOverview(){try{const d=await api("/api/admin/overview");$("statClients").textContent=d.users??0;$("statOrders").textContent=d.orders??0;$("statPending").textContent=d.pending??0;$("statRevenue").textContent=money(d.revenueTzs);$("statVerified").textContent=d.verifiedPayments??0;$("statOffers").textContent=d.activeOffers??0;renderBusinessOverview(d);}catch(e){msg("globalMessage",e.message);}}
  function renderBusinessOverview(d){const sales=d.networkSales||[],max=Math.max(1,...sales.map(x=>Number(x.revenueTzs||0)));$("networkSales").innerHTML=sales.length?sales.map(x=>`<div class="network-row"><div><b>${esc(x._id||"Other")}</b><span>${Number(x.orders||0)} verified sales · ${money(x.revenueTzs)}</span></div><div class="bar-track"><i style="width:${Math.max(2,Number(x.revenueTzs||0)/max*100)}%"></i></div></div>`).join(""):'<div class="empty">No provider-confirmed sales yet.</div>';const recent=d.recentOrders||[];$("recentSales").innerHTML=recent.length?recent.map(o=>`<div class="recent-row"><div><b>${esc(o.user?.name||"Customer")}</b><span>${esc(o.network)} · ${esc(o.package?.dataAmount||"Bundle")} · ${date(o.createdAt)}</span></div><strong>${money(o.amountTzs)}</strong><em class="pill ${o.paymentStatus==="completed"?"good":"warn"}">${esc((o.paymentStatus||"not_started").replaceAll("_"," "))}</em></div>`).join(""):'<div class="empty">No bundle purchases recorded yet.</div>'; }
- async function loadOffers(){try{offers=await fetchAllPages("/api/admin/packages","packages");renderOffers();}catch(e){msg("globalMessage",`Could not load all offers: ${e.message}`);}}
- function renderOffers(){const body=$("offersRows");if(!offers.length){body.innerHTML='<tr><td colspan="6" class="empty">No offers yet. Create your first bundle offer.</td></tr>';return;}body.innerHTML=offers.map(p=>`<tr><td><b>${esc(p.network)} · ${esc(p.name)}</b><small>Created ${date(p.createdAt)}</small></td><td>${esc(p.dataAmount)}</td><td>${esc(p.validity)}</td><td><b>${money(p.priceTzs)}</b></td><td><span class="pill ${p.active?"good":"bad"}">${p.active?"Published":"Hidden"}</span></td><td><div class="actions"><button type="button" class="mini blue" data-edit="${esc(p._id)}">Edit offer</button><button type="button" class="mini" data-toggle="${esc(p._id)}">${p.active?"Hide":"Publish"}</button></div></td></tr>`).join("");}
+ let offerDiagnostics=null;
+ async function loadOffers(){
+  const body=$("offersRows");
+  body.innerHTML='<tr><td colspan="6" class="empty">Loading offers from the database…</td></tr>';
+  try{
+   const first=await api("/api/admin/packages?page=1&limit=250");
+   if(!Array.isArray(first.packages)) throw Error("Admin API returned an unexpected response. Expected a packages array.");
+   offers=[...first.packages];
+   offerDiagnostics=first.diagnostics||first.pagination||null;
+   const pages=Math.max(1,Number(first.pagination?.pages)||1);
+   for(let page=2;page<=pages;page++){
+    const next=await api(`/api/admin/packages?page=${page}&limit=250`);
+    if(!Array.isArray(next.packages)) throw Error(`Page ${page} did not return a packages array.`);
+    offers.push(...next.packages);
+   }
+   renderOffers();
+   if(!offers.length){
+    const total=offerDiagnostics?.total ?? first.pagination?.total ?? "unknown";
+    const active=offerDiagnostics?.activeTotal;
+    body.innerHTML=`<tr><td colspan="6" class="empty">Admin API returned 0 offers (database total: ${esc(total)}${active!==undefined?`, active: ${esc(active)}`:""}). This is a server/database query mismatch, not a missing-page display issue.</td></tr>`;
+   }
+  }catch(e){
+   offers=[];
+   body.innerHTML=`<tr><td colspan="6" class="empty">Offers could not be loaded: ${esc(e.message)}</td></tr>`;
+   msg("globalMessage",`Could not load offers: ${e.message}`);
+  }
+ }
+ function renderOffers(){const body=$("offersRows");if(!offers.length){body.innerHTML='<tr><td colspan="6" class="empty">No offers returned by the Admin API. Check the database diagnostics above.</td></tr>';return;}body.innerHTML=offers.map(p=>`<tr><td><b>${esc(p.network)} · ${esc(p.name)}</b><small>Created ${date(p.createdAt)}</small></td><td>${esc(p.dataAmount)}</td><td>${esc(p.validity)}</td><td><b>${money(p.priceTzs)}</b></td><td><span class="pill ${p.active?"good":"bad"}">${p.active?"Published":"Hidden"}</span></td><td><div class="actions"><button type="button" class="mini blue" data-edit="${esc(p._id)}">Edit offer</button><button type="button" class="mini" data-toggle="${esc(p._id)}">${p.active?"Hide":"Publish"}</button></div></td></tr>`).join("");}
  // Delegate offer-row actions so they continue working after every table refresh.
  $("offersRows").addEventListener("click",e=>{const edit=e.target.closest("[data-edit]");const toggle=e.target.closest("[data-toggle]");if(edit)editOffer(edit.dataset.edit);else if(toggle)toggleOffer(toggle.dataset.toggle);});
  function editOffer(id){const p=offers.find(x=>String(x._id)===String(id));if(!p){msg("globalMessage","That offer could not be found. Refresh the offers list and try again.");return;}editing=String(id);$("offerForm").reset();msg("offerMessage","");$("offerFormTitle").textContent="Edit bundle offer";$("offerNetwork").value=p.network;$("offerName").value=p.name;$("offerData").value=p.dataAmount;$("offerValidity").value=p.validity;$("offerPrice").value=p.priceTzs;$("offerCode").value=p.providerProductCode||"";$("offerFormWrap").hidden=false;$("offerForm").scrollIntoView({behavior:"smooth",block:"center"});}
@@ -40,8 +66,9 @@
  function renderClients(){const term=$("clientSearch").value.toLowerCase();const list=clients.filter(c=>[c.name,c.email,c.phone].join(" ").toLowerCase().includes(term));const body=$("clientsRows");if(!list.length){body.innerHTML='<tr><td colspan="5" class="empty">No matching clients found.</td></tr>';return;}body.innerHTML=list.map(c=>`<tr><td><b>${esc(c.name)}</b><small>${esc(c.email)}</small></td><td>${esc(c.phone)}</td><td>${date(c.createdAt)}</td><td><span class="pill ${c.active?"good":"bad"}">${c.active?"Active":"Suspended"}</span></td><td><button class="mini ${c.active?"red":"blue"}" data-client="${c._id}" data-active="${c.active}">${c.active?"Suspend":"Reactivate"}</button></td></tr>`).join("");body.querySelectorAll("[data-client]").forEach(b=>b.onclick=()=>toggleClient(b.dataset.client,b.dataset.active==="true"));}
  async function toggleClient(id,active){const action=active?"suspend":"reactivate";if(!confirm(`Are you sure you want to ${action} this client account?`))return;try{await api(`/api/admin/clients/${id}`,{method:"PATCH",body:JSON.stringify({active:!active})});await loadClients();await loadOverview();}catch(e){msg("globalMessage",e.message);}}
  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));["offers","orders","clients"].forEach(k=>$(k+"Panel").hidden=k!==b.dataset.tab);});
- // Keep offer editing and price changes current without requiring a full sign-out.
- const offerRefresh=document.createElement("button");offerRefresh.type="button";offerRefresh.className="btn ghost";offerRefresh.textContent="Refresh offers";offerRefresh.addEventListener("click",loadOffers);$("offersPanel").querySelector(".panel-head").appendChild(offerRefresh);
+ // Bind the existing Refresh offers control in admin.html.
+ const offerRefresh=$("refreshOffers");
+ if(offerRefresh) offerRefresh.addEventListener("click",loadOffers);
  $("refreshOrders").onclick=loadOrders;$("refreshClients").onclick=loadClients;$("orderSearch").oninput=renderOrders;$("orderFilter").onchange=renderOrders;$("clientSearch").oninput=renderClients;
  async function restore(){if(!token)return;try{const d=await api("/api/auth/me");if(d.user?.role!=="admin")throw Error();showApp(d.user);}catch{logout();}}
  restore();
