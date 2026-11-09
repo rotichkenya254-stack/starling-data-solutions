@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Admin Panel · Starling Data Solutions Tanzania</title>
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="/"><span>✦</span><b>Starling <small>DATA SOLUTIONS · TANZANIA</small></b></a><div class="top-right"><span id="adminIdentity">Administrator</span><button id="logout" class="btn ghost" hidden>Sign out</button></div></header>
+<main class="wrap">
+<section id="loginView" class="login-card">
+ <div class="eyebrow">SECURE ADMINISTRATION</div><h1>Admin sign in</h1><p>Sign in with the administrator account configured for this deployment.</p>
+ <form id="loginForm"><label>Email address<input id="email" type="email" autocomplete="username" required></label><label>Password<input id="password" type="password" autocomplete="current-password" required></label><button class="btn primary" type="submit">Sign in to Admin Panel</button></form><div id="loginMessage" class="message"></div>
+</section>
+<section id="dashboard" hidden>
+ <div class="welcome"><div><div class="eyebrow">STARLING CONTROL CENTRE</div><h1>Admin Dashboard</h1><p>Manage data offers, verify payments, orders and customer accounts.</p></div><a class="btn ghost" href="/">View storefront ↗</a></div>
+ <div class="stats" id="stats"><article><span>Clients</span><b id="statClients">—</b></article><article><span>Total orders</span><b id="statOrders">—</b></article><article><span>Awaiting review</span><b id="statPending">—</b></article><article><span>Completed revenue</span><b id="statRevenue">—</b></article></div>
+ <nav class="tabs"><button class="tab active" data-tab="offers">Offers</button><button class="tab" data-tab="orders">Bundle Purchases</button><button class="tab" data-tab="clients">Clients</button></nav>
+ <section class="panel" id="offersPanel">
+  <div class="panel-head"><div><h2>Data bundle offers</h2><p>Create, edit and publish offers on your storefront.</p></div><button id="newOffer" class="btn primary">＋ Create offer</button></div>
+  <div id="offerFormWrap" class="form-wrap" hidden><h3 id="offerFormTitle">Create new offer</h3><form id="offerForm" class="offer-form">
+   <label>Network<select id="offerNetwork" required><option>Vodacom</option><option>Airtel</option><option>YAS</option><option>Halotel</option></select></label>
+   <label>Offer name<input id="offerName" required maxlength="100" placeholder="e.g. Weekly Bundle"></label>
+   <label>Data amount<input id="offerData" required placeholder="e.g. 2GB"></label>
+   <label>Validity<input id="offerValidity" required placeholder="e.g. 7 Days"></label>
+   <label>Price (TZS)<input id="offerPrice" type="number" min="1" step="1" required placeholder="2000"></label>
+   <label>Provider product code <span class="muted">(optional)</span><input id="offerCode" placeholder="Supplier product code"></label>
+   <div class="form-actions"><button type="button" id="cancelOffer" class="btn ghost">Cancel</button><button class="btn primary" type="submit">Save offer</button></div>
+  </form><div id="offerMessage" class="message"></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Network / Offer</th><th>Bundle</th><th>Validity</th><th>Price</th><th>Visibility</th><th>Actions</th></tr></thead><tbody id="offersRows"><tr><td colspan="6">Loading offers…</td></tr></tbody></table></div>
+ </section>
+ <section class="panel" id="ordersPanel" hidden><div class="panel-head"><div><h2>Bundle purchases</h2><p>Review customer orders and verify mobile-money payments against OptimaPay.</p></div><button class="btn ghost" id="refreshOrders">Refresh</button></div>
+ <div class="notice">A payment is only marked verified when the OptimaPay status response confirms the expected amount and payer phone. Updating an order's fulfilment status does not itself verify payment.</div>
+ <div class="filters"><input id="orderSearch" placeholder="Search order, client, phone or reference"><select id="orderFilter"><option value="">All payment states</option><option value="initiated">Payment initiated</option><option value="completed">Payment verified</option><option value="failed">Payment failed</option><option value="verification_error">Verification error</option><option value="not_started">Not started</option></select></div>
+ <div class="table-wrap"><table><thead><tr><th>Order / Client</th><th>Bundle / Recipient</th><th>Amount</th><th>Payment</th><th>Order status</th><th>Actions</th></tr></thead><tbody id="ordersRows"><tr><td colspan="6">Loading purchases…</td></tr></tbody></table></div></section>
+ <section class="panel" id="clientsPanel" hidden><div class="panel-head"><div><h2>Clients</h2><p>View registered customers and manage account access.</p></div><button class="btn ghost" id="refreshClients">Refresh</button></div>
+ <div class="filters"><input id="clientSearch" placeholder="Search name, email or phone"></div>
+ <div class="table-wrap"><table><thead><tr><th>Client</th><th>Phone</th><th>Joined</th><th>Account</th><th>Action</th></tr></thead><tbody id="clientsRows"><tr><td colspan="5">Loading clients…</td></tr></tbody></table></div></section>
+ <div id="globalMessage" class="message"></div>
+</section>
+</main>
+<script src="/admin.js" defer></script>
+</body></html>
