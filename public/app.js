@@ -7,7 +7,25 @@ let packages = [];
 
 $("year").textContent = new Date().getFullYear();
 $("menuBtn").addEventListener("click", () => $("topbar")?.classList.toggle("menu-open"));
-document.querySelector(".menu-btn").addEventListener("click", () => document.querySelector(".topbar").classList.toggle("menu-open"));
+
+
+$("heroRegister").onclick = () => openAuth("register");
+$("heroLoginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  openAuth("login");
+  $("authEmail").value = $("heroEmail").value;
+  $("authPassword").value = $("heroPassword").value;
+  $("authForm").requestSubmit();
+});
+$("forgotPassword").onclick = () => toast("Please contact support@starling.co.tz for password assistance.");
+document.querySelectorAll("[data-premium]").forEach(btn => btn.addEventListener("click", () => {
+  document.querySelectorAll("[data-premium]").forEach(item => item.classList.toggle("selected", item === btn));
+}));
+$("upgradeNow").onclick = () => {
+  const plan = document.querySelector("[data-premium].selected")?.dataset.premium || "Daily";
+  if (!token) { openAuth("login"); toast("Please sign in to continue with the " + plan + " plan."); }
+  else toast("The " + plan + " premium checkout needs to be enabled in the subscription service.");
+};
 
 function toast(message) {
   $("toast").textContent = message; $("toast").classList.add("show");
