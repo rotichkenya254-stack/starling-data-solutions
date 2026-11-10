@@ -86,6 +86,10 @@ The payer phone is validated as a Tanzanian number and the customer selects the 
 
 **Important:** API credentials were not supplied, so this ZIP contains the integration code but live checkout is not activated or tested. Confirm the exact response fields in your OptimaPay merchant account before production. Do not expose credentials in browser JavaScript.
 
+## Admin dashboard
+
+The administration area is available at `/admin` after signing in with the seeded administrator account. It includes business overview metrics, offer management, order and payment review, and customer account management. Revenue figures include provider-verified payments only and exclude orders marked refunded. Orders cannot be moved to paid, processing or completed until payment verification succeeds.
+
 ## Admin package example
 
 ```json
