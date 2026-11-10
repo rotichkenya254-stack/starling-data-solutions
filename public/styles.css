@@ -14,3 +14,36 @@
 @media(max-width:720px){.account-grid{grid-template-columns:1fr}.account-area{padding:30px 16px}.order-row{grid-template-columns:1fr auto}}
 
 body.modal-open{overflow:hidden}
+
+/* Starling storefront visual refresh */
+:root{--navy:#082866;--blue:#0759f7;--line:#e2e9f5;--muted:#687894}
+body{background:#f5f8fd;color:#102650}
+.utility-bar{background:#061d50}
+.topbar{height:82px;padding-inline:max(calc((100% - 1320px)/2),4%);box-shadow:0 5px 22px #09275b0b}
+.brand-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#0a66ff,#06266c);color:#fff;font-size:29px;text-shadow:none;transform:none;box-shadow:0 8px 18px #0759f72a}
+.brand-name{font-size:25px;letter-spacing:-1.2px}.brand-name strong{font-size:15px}.brand-name small{font-size:11px;letter-spacing:1.4px}
+.topbar nav{gap:22px}.topbar nav a{font-size:13px;font-weight:700}
+.btn{border-radius:10px;transition:transform .15s ease,box-shadow .15s ease}.btn:hover{transform:translateY(-1px);box-shadow:0 7px 16px #0759f722}
+.btn-primary{box-shadow:0 7px 17px #0759f72a}
+.hero{min-height:470px;background-position:center;background-size:cover;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#041d51e8 0%,#06296dcc 46%,#06296c10 100%);pointer-events:none}
+.hero-copy-block{position:relative;z-index:1;max-width:1320px;padding:75px 4% 65px;margin:auto}
+.hero h1{font-size:clamp(38px,5vw,64px);line-height:1.04;letter-spacing:-2px}.hero h2{max-width:560px;font-size:clamp(17px,2vw,22px);font-weight:600}
+.hero-points{gap:12px}.hero-networks{margin-top:27px}
+.section{max-width:1320px}.bundles-section{padding-top:56px;padding-bottom:54px}
+.section-heading h2{font-size:27px;letter-spacing:-.7px}.section-heading p,.package-heading p{color:#72809a}
+.currency-pill{border:1px solid #dfe7f4;background:#fff;border-radius:30px;padding:10px 15px;font-size:12px;font-weight:800}
+.network-grid{gap:15px}.network-card{border:1px solid #e2e9f4;border-radius:16px;background:#fff;box-shadow:0 8px 22px #102e6408;min-height:118px;transition:.18s ease}.network-card:hover,.network-card.selected{transform:translateY(-2px);border-color:#6b9eff;box-shadow:0 12px 25px #0759f718}
+.network-card.selected:after{border-radius:0 15px 0 12px}
+.package-heading{margin-top:38px}.package-grid{gap:15px}.package-card{border:1px solid #e3eaf4;border-radius:17px;box-shadow:0 8px 22px #102e6408;padding:20px;transition:.18s ease}.package-card:hover{transform:translateY(-3px);box-shadow:0 15px 30px #102e6412}
+.package-card h3{font-size:29px;letter-spacing:-1px}.package-card .price{color:#0759d7;font-size:18px;font-weight:900}
+.package-card .btn{width:100%;margin-top:14px}
+.bottom-panels{max-width:1320px;gap:22px;margin:0 auto 48px;padding:0 22px}.benefits{border:1px solid #e5ebf4;border-radius:18px;background:#fff;padding:20px;box-shadow:0 8px 22px #102e6408}.benefits article{padding:12px}
+.premium{border-radius:18px;box-shadow:0 12px 30px #08286620}
+.account-area{padding-top:42px;padding-bottom:45px}.account-card{border:1px solid #e3eaf4;border-radius:17px;box-shadow:0 8px 22px #102e6408}
+.how-section{padding:55px 4%;background:#edf3fc}.steps article{border:1px solid #e1e9f5;border-radius:16px;background:#fff;padding:23px}
+footer{padding:35px 4%;background:#061d50}
+.modal{border-radius:20px;box-shadow:0 25px 70px #041a483d}.modal-backdrop{backdrop-filter:blur(5px)}
+@media(max-width:760px){.topbar{height:72px;padding:0 17px}.brand-name{font-size:21px}.brand-name strong{font-size:13px}.hero{min-height:410px}.hero-copy-block{padding:62px 22px 45px}.hero:after{background:linear-gradient(90deg,#041d51ed 0%,#06296cd9 72%,#06296c80 100%)}.bundles-section{padding:37px 17px}.section-heading h2{font-size:23px}.network-grid{gap:9px}.network-card{min-height:100px}.package-grid{gap:11px}.package-card{padding:16px}.bottom-panels{padding:0 16px;margin-bottom:30px}.account-area{padding:35px 17px}.steps{gap:12px}.how-section{padding:40px 17px}footer{gap:18px}}
+
+.bottom-panels{grid-template-columns:1fr}.benefits{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:760px){.benefits{grid-template-columns:repeat(2,minmax(0,1fr))}}
