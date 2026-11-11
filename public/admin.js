@@ -1,6 +1,6 @@
 (()=> {
  const $=id=>document.getElementById(id);let token=localStorage.getItem("tdh_token")||"",user=null,offers=[],orders=[],clients=[],editing=null;
- const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&","<":"<",">":">",'"':""","'":"'"}[c]));
+ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const money=n=>`${Number(n||0).toLocaleString("en-TZ")} TZS`;
  const date=v=>v?new Date(v).toLocaleString():"—";
  const msg=(id,s,ok=false)=>{const e=$(id);e.textContent=s;e.className="message"+(ok?" success":"");};
@@ -69,10 +69,10 @@
  function renderClients(){const term=$("clientSearch").value.toLowerCase();const list=clients.filter(c=>[c.name,c.email,c.phone].join(" ").toLowerCase().includes(term));const body=$("clientsRows");if(!list.length){body.innerHTML='<tr><td colspan="5" class="empty">No matching clients found.</td></tr>';return;}body.innerHTML=list.map(c=>`<tr><td><b>${esc(c.name)}</b><small>${esc(c.email)}</small></td><td>${esc(c.phone)}</td><td>${date(c.createdAt)}</td><td><span class="pill ${c.active?"good":"bad"}">${c.active?"Active":"Suspended"}</span></td><td><button class="mini ${c.active?"red":"blue"}" data-client="${c._id}" data-active="${c.active}">${c.active?"Suspend":"Reactivate"}</button></td></tr>`).join("");body.querySelectorAll("[data-client]").forEach(b=>b.onclick=()=>toggleClient(b.dataset.client,b.dataset.active==="true"));}
  async function toggleClient(id,active){const action=active?"suspend":"reactivate";if(!confirm(`Are you sure you want to ${action} this client account?`))return;try{await api(`/api/admin/clients/${id}`,{method:"PATCH",body:JSON.stringify({active:!active})});await loadClients();await loadOverview();}catch(e){msg("globalMessage",e.message);}}
  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));["offers","orders","clients"].forEach(k=>$(k+"Panel").hidden=k!==b.dataset.tab);});
+ // Bind the existing Refresh offers control in admin.html.
  const offerRefresh=$("refreshOffers");
  if(offerRefresh) offerRefresh.addEventListener("click",loadOffers);
  $("refreshOrders").onclick=loadOrders;$("refreshClients").onclick=loadClients;$("orderSearch").oninput=renderOrders;$("orderFilter").onchange=renderOrders;$("clientSearch").oninput=renderClients;
  async function restore(){if(!token)return;try{const d=await api("/api/auth/me");if(d.user?.role!=="admin")throw Error();showApp(d.user);}catch{logout();}}
  restore();
 })();
-     
