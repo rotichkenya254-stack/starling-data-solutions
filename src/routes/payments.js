@@ -115,8 +115,7 @@ async function verifyTanzaniaPayment(order) {
   }
 }
 
-// Tanzania Global API collection endpoint, taken from the supplied production server:
-// POST /api/v2/godigital/tz/collect
+// POST /api/payments/initiate - Tanzania Global API collection endpoint
 router.post("/initiate", protect, async (req, res) => {
   let order;
   try {
@@ -168,6 +167,11 @@ router.post("/initiate", protect, async (req, res) => {
       description: `Starling Data Solutions ${order.network} ${order.package ? "data bundle" : "bundle"}`
     });
 
+    // Check status codes returned by the gateway[cite: 5]
+    if (!["202", "200"].includes(String(result.http_status || result.status_code || "202"))) {
+      throw new Error(result.message || "Tanzania payment request was not accepted by the gateway.");
+    }
+
     const data = result.data || {};
     const providerState = String(data.status || "PENDING").toUpperCase();
     if (["FAILED", "REJECTED", "CANCELLED"].includes(providerState)) {
@@ -192,7 +196,6 @@ router.post("/initiate", protect, async (req, res) => {
       const ambiguous = err.name === "AbortError" || err.name === "TimeoutError" ||
         /timeout|network|fetch failed|socket/i.test(String(err.message || ""));
       if (ambiguous) {
-        // Keep the original reference available for reconciliation; do not invite duplicate collection.
         order.globalReference = order.paymentReference;
         order.paymentStatus = "initiated";
         order.failureReason = "Gateway response is not yet confirmed. Check this original transaction reference; do not retry payment.";
@@ -210,6 +213,7 @@ router.post("/initiate", protect, async (req, res) => {
   }
 });
 
+// GET /api/payments/status/:orderId
 router.get("/status/:orderId", protect, async (req, res) => {
   try {
     const order = await Order.findOne({ _id: req.params.orderId, user: req.user._id });
@@ -229,8 +233,6 @@ router.get("/status/:orderId", protect, async (req, res) => {
   }
 });
 
-// The supplied server verifies status through the authenticated Global API. Do not trust
-// an unsigned callback body as proof of payment.
 router.post("/callback", (_req, res) => res.status(202).json({
   received: true,
   message: "Callback received. Payment must be verified against the authenticated OptimaPay Tanzania status endpoint."
