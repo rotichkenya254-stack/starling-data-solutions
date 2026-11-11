@@ -1,125 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#071b45">
-  <meta name="description" content="Starling Data Solutions Tanzania — choose your network and buy data bundles securely.">
-  <title>Starling Data Solutions Tanzania | Buy Data Bundles</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
-  <style>
-    :root{--starling-navy:#071b45;--starling-blue:#0b347d;--starling-orange:#f26a21;--starling-ink:#14213d;--starling-muted:#65728a;--starling-line:#e5eaf2;--starling-surface:#f5f8fc}
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth;scroll-padding-top:90px}
-    body{margin:0;font-family:'DM Sans',Arial,sans-serif;color:var(--starling-ink);background:#f6f8fc}
-    img{max-width:100%}
-    .utility-bar{min-height:36px;padding:7px clamp(16px,4vw,64px);display:flex;align-items:center;justify-content:space-between;gap:12px;background:#061638;color:#eaf1ff;font-size:12px}
-    .utility-left,.utility-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.utility-left i{height:14px;width:1px;background:#52617e}.utility-bar .flag{font-size:16px}
-    .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:22px;padding:13px clamp(16px,4vw,64px);background:rgba(255,255,255,.97);border-bottom:1px solid var(--starling-line);box-shadow:0 5px 24px rgba(8,28,67,.06);backdrop-filter:blur(12px)}
-    .brand{display:inline-flex;align-items:center;gap:10px;color:var(--starling-navy);text-decoration:none;flex-shrink:0}.brand-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,var(--starling-orange),#ff9a42);color:white;font-size:25px}.brand-name{display:flex;flex-direction:column;font-size:17px;font-weight:900;line-height:1.03;letter-spacing:-.5px}.brand-name strong{font-size:12px;font-weight:800;letter-spacing:.4px}.brand-name small{margin-top:3px;color:var(--starling-muted);font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase}
-    .topbar nav{display:flex;align-items:center;justify-content:center;gap:clamp(10px,1.7vw,25px)}.topbar nav a,footer nav a{color:#43516b;text-decoration:none;font-size:13px;font-weight:700}.topbar nav a:hover,.topbar nav a.active{color:#e65e1c}.nav-actions{display:flex;align-items:center;gap:9px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 17px;border:1px solid transparent;border-radius:10px;font:700 13px 'DM Sans',sans-serif;text-decoration:none;cursor:pointer;transition:transform .18s,box-shadow .18s,background .18s}.btn:hover{transform:translateY(-1px)}.btn-primary{background:linear-gradient(135deg,#f26a21,#df4e13);color:#fff;box-shadow:0 7px 17px rgba(226,83,23,.2)}.btn-ghost{background:#fff;color:var(--starling-navy);border-color:#dce3ee}.menu-btn{display:none;border:1px solid var(--starling-line);border-radius:9px;background:#fff;padding:8px 12px;font-size:21px;color:var(--starling-navy)}
-
-    /* The supplied flyer is displayed as a real image, not a CSS background. This keeps
-       the original artwork sharp and prevents important flyer details being cropped. */
-    .hero{padding:clamp(18px,3vw,38px) clamp(12px,3vw,44px) 38px;background:radial-gradient(ellipse at 50% 0%,#173d79 0%,#091d46 54%,#061431 100%);overflow:hidden}
-    .hero-inner{width:min(1500px,100%);margin:0 auto}.hero-flyer-frame{position:relative;width:100%;margin:0 auto;padding:clamp(7px,1.2vw,15px);border:1px solid rgba(255,255,255,.18);border-radius:20px;background:rgba(255,255,255,.055);box-shadow:0 22px 65px rgba(0,0,0,.35)}
-    .hero-flyer{display:block;width:100%;height:auto;max-height:760px;object-fit:contain;object-position:center;border-radius:12px;background:#08152e}
-    .flyer-fallback{display:none;min-height:240px;padding:35px 20px;place-items:center;text-align:center;color:#fff;background:linear-gradient(135deg,#0c3479,#071a40);border-radius:12px}.flyer-fallback h2{margin:0 0 8px;font-size:clamp(25px,4vw,44px)}.flyer-fallback p{margin:0;color:#dbe7ff}
-    .hero-copy-block{max-width:1000px;margin:27px auto 0;text-align:center;color:#fff}.hero-copy-block h1{margin:0;font-size:clamp(28px,4vw,48px);line-height:1.08;font-weight:900;letter-spacing:-1.5px}.hero-copy-block h1 em{color:#ff9a57;font-style:normal}.hero-copy-block h2{margin:12px 0 18px;color:#e3ebfa;font-size:clamp(15px,1.8vw,20px);font-weight:600}.hero-points{display:flex;justify-content:center;gap:12px 26px;flex-wrap:wrap;margin:0;padding:0;list-style:none;color:#fff;font-size:13px;font-weight:700}.hero-points li span{margin-left:5px}.hero-networks{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px}.hero-networks span{padding:8px 15px;border:1px solid rgba(255,255,255,.22);border-radius:30px;background:rgba(255,255,255,.09);color:#fff;font-size:13px;font-weight:800}
-
-    .section{width:min(1200px,calc(100% - 32px));margin:0 auto;padding:55px 0}.bundles-section{padding-top:52px}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:25px}.section-heading h2{margin:0;color:var(--starling-navy);font-size:clamp(23px,3vw,32px);font-weight:900;letter-spacing:-.8px}.section-heading p{margin:6px 0 0;color:var(--starling-muted);font-size:14px}.currency-pill,.live-label{white-space:nowrap;padding:9px 13px;border-radius:30px;background:#fff;border:1px solid var(--starling-line);color:#45536d;font-size:12px;font-weight:800}
-    .network-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.network-card{min-height:130px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border:1px solid #e1e7f0;border-radius:16px;background:#fff;box-shadow:0 5px 18px rgba(15,35,75,.045);cursor:pointer;transition:.2s}.network-card:hover,.network-card.selected{border-color:#f17a3c;box-shadow:0 10px 26px rgba(15,35,75,.1);transform:translateY(-2px)}.network-card b{height:48px;display:grid;place-items:center}.network-card img{max-width:145px;max-height:48px;object-fit:contain}.network-card small{color:#65728a;font-size:11px;font-weight:700}
-    .package-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:34px 0 16px}.package-heading h3{margin:0;color:var(--starling-navy);font-size:21px}.package-heading p{margin:5px 0 0;color:var(--starling-muted);font-size:13px}.live-label{color:#14834d;background:#effbf4;border-color:#cdeedb}.package-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}.empty-state{padding:25px;border:1px dashed #cbd5e4;border-radius:13px;background:#fff;color:#68758c;text-align:center;font-size:13px}
-    .bottom-panels{padding:10px 16px 48px}.benefits{width:min(1200px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.benefits article{min-height:135px;padding:20px;border:1px solid var(--starling-line);border-radius:15px;background:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:7px}.benefit-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#edf3ff;color:#1552a5;font-size:20px}.benefit-icon.green{background:#eaf9f0;color:#16814a}.benefits strong{color:var(--starling-navy);font-size:14px}.benefits article span{color:var(--starling-muted);font-size:12px;line-height:1.5}
-    .account-area{padding-top:35px}.account-grid{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(0,1.8fr);gap:16px}.account-card{padding:23px;border:1px solid var(--starling-line);border-radius:15px;background:#fff;box-shadow:0 5px 20px rgba(15,35,75,.04)}.account-card h3{margin:0 0 15px;color:var(--starling-navy)}.account-card p{color:var(--starling-muted);font-size:13px}.account-card p b{color:var(--starling-ink)}
-    .how-section{padding:55px 16px 65px;background:#edf2f9}.centered{justify-content:center;text-align:center}.steps{width:min(1100px,100%);margin:28px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.steps article{padding:24px;border:1px solid #e1e7f0;border-radius:15px;background:#fff}.steps article>b{color:#ee6b2a;font-size:13px;font-weight:900}.steps h3{margin:12px 0 7px;color:var(--starling-navy);font-size:17px}.steps p{margin:0;color:var(--starling-muted);font-size:13px;line-height:1.6}
-    footer{padding:30px clamp(16px,4vw,64px);display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;background:#061638;color:#fff}footer .brand-name,footer .brand{color:#fff}footer .brand-name small{color:#b8c7e2}footer nav{display:flex;gap:17px;flex-wrap:wrap}footer nav a{color:#d1dbed;font-size:12px}.socials{color:#d1dbed;font-size:13px}.footer-priority{font-size:12px;color:#fff}
-    .modal-backdrop{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,12,31,.72);overflow-y:auto}.modal-backdrop[aria-hidden="false"],.modal-backdrop.open{display:flex}.modal{position:relative;width:min(470px,100%);max-height:calc(100vh - 36px);overflow-y:auto;padding:30px;border-radius:18px;background:#fff;box-shadow:0 25px 80px rgba(0,0,0,.3)}.modal-close{position:absolute;top:12px;right:14px;border:0;background:transparent;color:#6c7890;font-size:27px;cursor:pointer}.modal-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#fff0e8;color:#ed6422;font-size:25px}.eyebrow{margin-top:15px;color:#e65e1c;font-size:10px;font-weight:900;letter-spacing:1.5px}.modal h2{margin:8px 0;color:var(--starling-navy)}.modal>p{color:var(--starling-muted);font-size:13px}.field{display:flex;flex-direction:column;gap:6px;margin:14px 0}.field label{color:#34425d;font-size:12px;font-weight:800}.field input,.field select{width:100%;min-height:45px;padding:11px 12px;border:1px solid #dce3ee;border-radius:9px;background:#fff;color:#1b2944;font:14px 'DM Sans',sans-serif}.field input:focus,.field select:focus{outline:2px solid rgba(242,106,33,.2);border-color:#ed742f}.full-btn{width:100%;margin-top:7px}.form-message{margin-top:10px;font-size:12px}.switch-auth{margin-top:17px;color:#66738a;font-size:12px}.switch-auth button{border:0;background:none;color:#e65e1c;font:800 12px 'DM Sans',sans-serif;cursor:pointer}.disclaimer{display:block;margin-top:14px;color:#78849a;font-size:10px;line-height:1.5}.toast{position:fixed;right:18px;bottom:18px;z-index:120;max-width:min(360px,calc(100% - 36px));padding:13px 17px;border-radius:10px;background:#071b45;color:#fff;box-shadow:0 8px 25px rgba(0,0,0,.2)}
-    @media(max-width:1050px){.topbar{gap:12px}.topbar nav{gap:10px}.topbar nav a{font-size:12px}.nav-actions .btn{padding:9px 11px}.benefits{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:780px){.utility-bar{justify-content:center}.utility-right{display:none}.topbar{flex-wrap:wrap}.menu-btn{display:block}.topbar nav{display:none;order:4;width:100%;padding:12px 0 4px;align-items:stretch;flex-direction:column}.topbar nav.open,.topbar nav.mobile-open{display:flex}.topbar nav a{padding:9px 4px}.nav-actions{margin-left:auto}.nav-actions .btn{min-height:37px;font-size:11px}.hero{padding:14px 10px 30px}.hero-flyer-frame{padding:5px;border-radius:13px}.hero-flyer{border-radius:9px;max-height:none}.hero-copy-block{margin-top:22px}.network-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.account-grid{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.section{padding-top:40px;padding-bottom:40px}footer{justify-content:center;text-align:center}footer nav{justify-content:center}}
-    @media(max-width:480px){.utility-left{gap:7px;font-size:10px}.utility-left i,.utility-left span:last-child{display:none}.brand-icon{width:36px;height:36px}.brand-name{font-size:15px}.nav-actions{gap:5px}.nav-actions .btn{padding:8px}.menu-btn{padding:6px 9px}.hero-points{align-items:flex-start;flex-direction:column;width:max-content;margin:0 auto}.section-heading,.package-heading{align-items:flex-start;flex-direction:column}.currency-pill{align-self:flex-start}.network-card{min-height:115px}.benefits{grid-template-columns:1fr}.modal{padding:24px 19px}}
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#06266c">
+<title>Starling Data Solutions Tanzania | Buy Data Bundles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <div class="utility-bar">
-    <div class="utility-left"><span class="flag">🇹🇿</span><b>Tanzania</b><i></i><span>☎ Support: +255 692 000 111</span><i></i><span>✉ support@starling.co.tz</span></div>
-    <div class="utility-right"><span>🛡 Secure &amp; Reliable</span><span>⚡ Powered by OptimaPayBridge</span></div>
-  </div>
+<div class="utility-bar"><div class="utility-left"><span class="flag">🇹🇿</span><b>Tanzania</b><i></i><span>☎ Support: +255 692 000 111</span><i></i><span>✉ support@starling.co.tz</span></div><div class="utility-right"><span>🛡 Secure &amp; Reliable</span><span>⚡ Powered by OptimaPayBridge</span></div></div>
+<header class="topbar" id="topbar">
+<a class="brand" href="#"><span class="brand-icon">✦</span><span class="brand-name">Starling<strong>Data Solutions</strong><small>Tanzania</small></span></a>
+<nav><a class="active" href="#">Home</a><a href="#networks">Buy Bundles⌄</a><a href="#transactions" id="accountNav">My Account⌄</a><a href="#transactions" id="transactionsNav">Transactions</a><a href="#how">FAQs</a><a href="#support">Contact</a></nav>
+<div class="nav-actions"><a class="btn btn-ghost" id="adminPanelLink" href="/admin" hidden>▦ Admin Panel</a><button class="btn btn-ghost" id="loginOpen">♙ Login</button><button class="btn btn-primary" id="registerOpen">♟ Register</button></div>
+<button class="menu-btn" id="menuBtn" aria-label="Toggle menu">☰</button>
+</header>
+<main>
+<section class="hero">
+<div class="hero-copy-block"><h1>Starling Data Solutions<br><em>Tanzania</em></h1><h2>Buy Data Bundles Instantly. Stay Connected Always!</h2>
+<ul class="hero-points"><li>✓ <span>Fast &amp; Secure Transactions</span></li><li>✓ <span>All Major Networks</span></li><li>✓ <span>Affordable Prices</span></li></ul>
+<div class="hero-networks"><span class="voda">◉ vodacom</span><span class="air">◒ airtel</span><span class="yas">yas</span><span class="halo">halotel</span></div></div>
 
-  <header class="topbar" id="topbar">
-    <a class="brand" href="#home" aria-label="Starling Data Solutions home"><span class="brand-icon">✦</span><span class="brand-name">Starling<strong>Data Solutions</strong><small>Tanzania</small></span></a>
-    <nav id="mainNav"><a class="active" href="#home">Home</a><a href="#networks">Buy Bundles⌄</a><a href="#transactions" id="accountNav">My Account⌄</a><a href="#transactions" id="transactionsNav">Transactions</a><a href="#how">FAQs</a><a href="#support">Contact</a></nav>
-    <div class="nav-actions"><a class="btn btn-ghost" id="adminPanelLink" href="/admin" hidden>▦ Admin Panel</a><button class="btn btn-ghost" id="loginOpen" type="button">♙ Login</button><button class="btn btn-primary" id="registerOpen" type="button">♟ Register</button></div>
-    <button class="menu-btn" id="menuBtn" type="button" aria-label="Toggle menu" aria-expanded="false">☰</button>
-  </header>
+</section>
+<section class="section bundles-section" id="networks">
+<div class="section-heading"><div><h2>▥ Data Bundles</h2><p>Choose your preferred bundle and get connected instantly</p></div><span class="currency-pill">📍 Tanzania (TZS)⌄</span></div>
+<div class="network-grid">
+<button class="network-card selected voda-card" data-network="Vodacom" aria-label="Choose Vodacom bundles"><b><img src="/Images/networks/vodacom.png" alt="Vodacom"></b><small>View available bundles</small></button>
+<button class="network-card air-card" data-network="Airtel" aria-label="Choose Airtel bundles"><b><img src="/Images/networks/airtel.png" alt="Airtel"></b><small>View available bundles</small></button>
+<button class="network-card yas-card" data-network="YAS" aria-label="Choose Yas bundles"><b><img src="/Images/networks/yas.png" alt="Yas"></b><small>View available bundles</small></button>
+<button class="network-card halo-card" data-network="Halotel" aria-label="Choose Halotel bundles"><b><img src="/Images/networks/halotel.png" alt="Halotel"></b><small>View available bundles</small></button>
+</div>
+<div class="package-heading"><div><h3 id="packageTitle">Vodacom bundles</h3><p>Select a package to continue to secure checkout.</p></div><span class="live-label">● Available packages</span></div>
+<div id="packageGrid" class="package-grid"><div class="empty-state">Packages will appear here once the administrator adds them.</div></div>
+</section>
+<section class="bottom-panels">
+<div class="benefits"><article><b class="benefit-icon blue">ϟ</b><strong>Instant Activation</strong><span>Get your bundle immediately after payment</span></article><article><b class="benefit-icon green">✓</b><strong>Secure Payments</strong><span>Powered by OptimaPayBridge</span></article><article><b class="benefit-icon blue">♧</b><strong>24/7 Support</strong><span>We are always here to help</span></article><article><b class="benefit-icon blue">▥</b><strong>Trusted Platform</strong><span>Thousands of happy customers</span></article></div>
 
-  <main id="home">
-    <section class="hero" aria-label="Starling Tanzania promotional flyer and introduction">
-      <div class="hero-inner">
-        <div class="hero-flyer-frame">
-          <img class="hero-flyer" src="/Images/starling-tanzania-background-flyer.png" alt="Starling Data Solutions Tanzania promotional flyer" fetchpriority="high" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-          <div class="flyer-fallback"><div><h2>Starling Data Solutions Tanzania</h2><p>Place starling-tanzania-background-flyer.png in the public Images folder to display the original HD flyer here.</p></div></div>
-        </div>
-        <div class="hero-copy-block">
-          <h1>Starling Data Solutions <em>Tanzania</em></h1>
-          <h2>Buy Data Bundles Instantly. Stay Connected Always!</h2>
-          <ul class="hero-points"><li>✓ <span>Fast &amp; Secure Transactions</span></li><li>✓ <span>All Major Networks</span></li><li>✓ <span>Affordable Prices</span></li></ul>
-          <div class="hero-networks"><span class="voda">◉ vodacom</span><span class="air">◒ airtel</span><span class="yas">yas</span><span class="halo">halotel</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section bundles-section" id="networks">
-      <div class="section-heading"><div><h2>▥ Data Bundles</h2><p>Choose your preferred bundle and get connected instantly</p></div><span class="currency-pill">📍 Tanzania (TZS)⌄</span></div>
-      <div class="network-grid">
-        <button class="network-card selected voda-card" data-network="Vodacom" aria-label="Choose Vodacom bundles" type="button"><b><img src="/Images/networks/vodacom.png" alt="Vodacom"></b><small>View available bundles</small></button>
-        <button class="network-card air-card" data-network="Airtel" aria-label="Choose Airtel bundles" type="button"><b><img src="/Images/networks/airtel.png" alt="Airtel"></b><small>View available bundles</small></button>
-        <button class="network-card yas-card" data-network="YAS" aria-label="Choose Yas bundles" type="button"><b><img src="/Images/networks/yas.png" alt="Yas"></b><small>View available bundles</small></button>
-        <button class="network-card halo-card" data-network="Halotel" aria-label="Choose Halotel bundles" type="button"><b><img src="/Images/networks/halotel.png" alt="Halotel"></b><small>View available bundles</small></button>
-      </div>
-      <div class="package-heading"><div><h3 id="packageTitle">Vodacom bundles</h3><p>Select a package to continue to secure checkout.</p></div><span class="live-label">● Available packages</span></div>
-      <div id="packageGrid" class="package-grid"><div class="empty-state">Packages will appear here once the administrator adds them.</div></div>
-    </section>
-
-    <section class="bottom-panels" aria-label="Platform benefits">
-      <div class="benefits">
-        <article><b class="benefit-icon blue">ϟ</b><strong>Instant Activation</strong><span>Get your bundle immediately after payment</span></article>
-        <article><b class="benefit-icon green">✓</b><strong>Secure Payments</strong><span>Powered by OptimaPayBridge</span></article>
-        <article><b class="benefit-icon blue">♧</b><strong>24/7 Support</strong><span>We are always here to help</span></article>
-        <article><b class="benefit-icon blue">▥</b><strong>Trusted Platform</strong><span>Thousands of happy customers</span></article>
-      </div>
-    </section>
-
-    <section class="account-area section" id="transactions">
-      <div class="section-heading"><div><h2>My Account &amp; Transactions</h2><p id="accountWelcome">Sign in to view your profile and recent orders.</p></div><button class="btn btn-ghost" id="logoutBtn" type="button" hidden>Sign out</button></div>
-      <div class="account-grid">
-        <article class="account-card"><h3>Profile</h3><p><b id="profileName">Guest</b></p><p id="profileEmail">Not signed in</p><p id="profilePhone"></p><button class="btn btn-primary" id="accountLogin" type="button">Sign in / Register</button></article>
-        <article class="account-card orders-card"><h3>Recent transactions</h3><div id="ordersList" class="empty-state">Sign in to view your transactions.</div></article>
-      </div>
-    </section>
-
-    <section class="how-section" id="how"><div class="section-heading centered"><div><h2>Simple, secure and convenient</h2><p>Choose your network, select a bundle and complete payment securely.</p></div></div><div class="steps"><article><b>01</b><h3>Choose a bundle</h3><p>Select your preferred network and data package.</p></article><article><b>02</b><h3>Enter your number</h3><p>Provide the Tanzanian mobile number receiving the bundle.</p></article><article><b>03</b><h3>Pay securely</h3><p>Complete payment and track your order.</p></article></div></section>
-  </main>
-
-  <footer id="support">
-    <a class="brand footer-brand" href="#home"><span class="brand-icon">✦</span><span class="brand-name">Starling<strong>Data Solutions</strong><small>Tanzania</small></span></a>
-    <nav><a href="#support">About Us</a><a href="#support">Privacy Policy</a><a href="#support">Terms &amp; Conditions</a><a href="mailto:support@starling.co.tz">Contact Us</a></nav>
-    <div class="socials">Follow Us:　 f　𝕏　▶　➤</div><b class="footer-priority">🛡 Your Data. Our Priority.</b>
-  </footer>
-
-  <div class="modal-backdrop" id="authModal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle"><button class="modal-close" id="modalClose" type="button" aria-label="Close login or registration">×</button><div class="modal-mark">✦</div><div class="eyebrow dark-eyebrow" id="authEyebrow">WELCOME TO STARLING</div><h2 id="authTitle">Create your account</h2><p id="authDesc">Manage your bundles and orders in one place.</p><form id="authForm"><div class="field" id="nameField"><label for="authName">Full name</label><input id="authName" placeholder="Your full name" autocomplete="name"></div><div class="field"><label for="authEmail">Email address</label><input id="authEmail" type="email" required placeholder="you@example.com" autocomplete="email"></div><div class="field" id="phoneField"><label for="authPhone">Mobile number</label><input id="authPhone" placeholder="+255 7XX XXX XXX" autocomplete="tel"></div><div class="field"><label for="authPassword">Password</label><input id="authPassword" type="password" minlength="8" required placeholder="At least 8 characters" autocomplete="current-password"></div><button class="btn btn-primary full-btn" id="authSubmit" type="submit">Create account</button></form><div class="form-message" id="authMessage"></div><p class="switch-auth"><span id="switchText">Already have an account?</span> <button id="switchAuth" type="button">Log in</button></p></div></div>
-
-  <div class="modal-backdrop" id="checkoutModal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle"><button class="modal-close" id="checkoutClose" type="button" aria-label="Close checkout">×</button><div class="eyebrow dark-eyebrow">ORDER DETAILS</div><h2 id="checkoutTitle">Almost connected</h2><p id="checkoutPackage">Selected bundle</p><form id="checkoutForm"><div class="field"><label for="recipientPhone">Tanzanian bundle recipient</label><input id="recipientPhone" required placeholder="+255 7XX XXX XXX" autocomplete="tel"></div><div class="field"><label for="payerPhone">Tanzanian mobile-money payer number</label><input id="payerPhone" placeholder="07XX XXX XXX" required autocomplete="tel"></div><div class="field"><label for="payerProvider">Payment network</label><select id="payerProvider" required><option value="">Select network</option><option value="VODACOM">Vodacom</option><option value="YAS">YAS</option><option value="AIRTEL">Airtel</option><option value="HALOTEL">Halotel</option></select></div><button class="btn btn-primary full-btn" type="submit">Create order &amp; request payment</button></form><div class="form-message" id="checkoutMessage"></div><small class="disclaimer">Payments use the Tanzania Global API collection flow.</small></div></div>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script>
-    // Mobile navigation enhancement; the existing application script remains in place.
-    (function(){var menu=document.getElementById('menuBtn'),nav=document.getElementById('mainNav');if(menu&&nav){menu.addEventListener('click',function(){var open=nav.classList.toggle('mobile-open');menu.setAttribute('aria-expanded',String(open));});nav.querySelectorAll('a').forEach(function(link){link.addEventListener('click',function(){nav.classList.remove('mobile-open');menu.setAttribute('aria-expanded','false');});});}})();
-  </script>
-  <script src="/app.js" defer></script>
-</body>
-</html>
+</section>
+<section class="account-area section" id="transactions">
+  <div class="section-heading"><div><h2>My Account &amp; Transactions</h2><p id="accountWelcome">Sign in to view your profile and recent orders.</p></div><button class="btn btn-ghost" id="logoutBtn" hidden>Sign out</button></div>
+  <div class="account-grid"><article class="account-card"><h3>Profile</h3><p><b id="profileName">Guest</b></p><p id="profileEmail">Not signed in</p><p id="profilePhone"></p><button class="btn btn-primary" id="accountLogin">Sign in / Register</button></article><article class="account-card orders-card"><h3>Recent transactions</h3><div id="ordersList" class="empty-state">Sign in to view your transactions.</div></article></div>
+</section>
+<section class="how-section" id="how"><div class="section-heading centered"><div><h2>Simple, secure and convenient</h2><p>Choose your network, select a bundle and complete payment securely.</p></div></div><div class="steps"><article><b>01</b><h3>Choose a bundle</h3><p>Select your preferred network and data package.</p></article><article><b>02</b><h3>Enter your number</h3><p>Provide the Tanzanian mobile number receiving the bundle.</p></article><article><b>03</b><h3>Pay securely</h3><p>Complete payment and track your order.</p></article></div></section>
+</main>
+<footer><a class="brand footer-brand" href="#"><span class="brand-icon">✦</span><span class="brand-name">Starling<strong>Data Solutions</strong><small>Tanzania</small></span></a><nav><a href="#support">About Us</a><a href="#support">Privacy Policy</a><a href="#support">Terms &amp; Conditions</a><a href="#support">Contact Us</a></nav><div class="socials">Follow Us:　 f　𝕏　▶　➤</div><b class="footer-priority">🛡 Your Data. Our Priority.</b></footer>
+<div class="modal-backdrop" id="authModal" aria-hidden="true"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle"><button class="modal-close" id="modalClose" aria-label="Close login or registration">×</button><div class="modal-mark">✦</div><div class="eyebrow dark-eyebrow" id="authEyebrow">WELCOME TO STARLING</div><h2 id="authTitle">Create your account</h2><p id="authDesc">Manage your bundles and orders in one place.</p><form id="authForm"><div class="field" id="nameField"><label>Full name</label><input id="authName" placeholder="Your full name"></div><div class="field"><label>Email address</label><input id="authEmail" type="email" required placeholder="you@example.com"></div><div class="field" id="phoneField"><label>Mobile number</label><input id="authPhone" placeholder="+255 7XX XXX XXX"></div><div class="field"><label>Password</label><input id="authPassword" type="password" minlength="8" required placeholder="At least 8 characters"></div><button class="btn btn-primary full-btn" id="authSubmit">Create account</button></form><div class="form-message" id="authMessage"></div><p class="switch-auth"><span id="switchText">Already have an account?</span> <button id="switchAuth">Log in</button></p></div></div>
+<div class="modal-backdrop" id="checkoutModal"><div class="modal"><button class="modal-close" id="checkoutClose">×</button><div class="eyebrow dark-eyebrow">ORDER DETAILS</div><h2>Almost connected</h2><p id="checkoutPackage">Selected bundle</p><form id="checkoutForm"><div class="field"><label>Tanzanian bundle recipient</label><input id="recipientPhone" required placeholder="+255 7XX XXX XXX"></div><div class="field"><label>Tanzanian mobile-money payer number</label><input id="payerPhone" placeholder="07XX XXX XXX" required></div><div class="field"><label>Payment network</label><select id="payerProvider" required><option value="">Select network</option><option value="VODACOM">Vodacom</option><option value="YAS">YAS</option><option value="AIRTEL">Airtel</option><option value="HALOTEL">Halotel</option></select></div><button class="btn btn-primary full-btn">Create order &amp; request payment</button></form><div class="form-message" id="checkoutMessage"></div><small class="disclaimer">Payments use the Tanzania Global API collection flow.</small></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><script src="/app.js" defer></script>
+</body></html>
