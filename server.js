@@ -14,6 +14,10 @@ const paymentRoutes = require("./src/routes/payments");
 const { seedAdmin } = require("./src/utils/seedAdmin");
 
 const app = express();
+
+// Trust the first proxy (Render's load balancer) so express-rate-limit works correctly[cite: 1]
+app.set("trust proxy", 1);
+
 app.use(helmet({ contentSecurityPolicy: false }));
 // Same-origin hosting needs no cross-origin access. Set CORS_ORIGINS to a
 // comma-separated allowlist only when a separate trusted frontend is used.
