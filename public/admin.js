@@ -1,14 +1,48 @@
 (()=> {
- const $=id=>document.getElementById(id);let token=localStorage.getItem("tdh_token")||"",user=null,offers=[],orders=[],clients=[],editing=null;
- const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ const $=id=>document.getElementById(id);
+ let token=localStorage.getItem("tdh_token")||"",user=null,offers=[],orders=[],clients=[],editing=null;
+
+ const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&","<":"<",">":">",'"':""","'":"'"}[c]));
  const money=n=>`${Number(n||0).toLocaleString("en-TZ")} TZS`;
  const date=v=>v?new Date(v).toLocaleString():"—";
- const msg=(id,s,ok=false)=>{const e=$(id);e.textContent=s;e.className="message"+(ok?" success":"");};
- async function api(url,opt={}){const h={...(opt.headers||{})};if(opt.body)h["Content-Type"]="application/json";if(token)h.Authorization=`Bearer ${token}`;const r=await fetch(url,{...opt,cache:"no-store",headers:h});const raw=await r.text();const contentType=r.headers.get("content-type")||"unknown";let d={};try{d=raw?JSON.parse(raw):{};}catch(_){d={_nonJson:true,_preview:raw.slice(0,400)};}if(!r.ok)throw Error(d.message||`Request failed (${r.status}); content-type=${contentType}; response=${raw.slice(0,250)}`);if(d._nonJson)throw Error(`Server returned non-JSON for ${url} (HTTP ${r.status}, ${contentType}). Preview: ${d._preview}`);return d;}
- function showApp(u){user=u;$("loginView").hidden=true;$("dashboard").hidden=false;$("logout").hidden=false;$("adminIdentity").textContent=u.name||u.email;loadAll();}
- function logout(){token="";user=null;localStorage.removeItem("tdh_token");$("dashboard").hidden=true;$("loginView").hidden=false;$("logout").hidden=true;}
- $("loginForm").addEventListener("submit",async e=>{e.preventDefault();msg("loginMessage","Signing in…");try{const d=await api("/api/auth/login",{method:"POST",body:JSON.stringify({email:$("email").value,password:$("password").value})});if(d.user?.role!=="admin")throw Error("This account does not have administrator access.");token=d.token;localStorage.setItem("tdh_token",token);showApp(d.user);}catch(err){msg("loginMessage",err.message);}});
+ const msg=(id,s,ok=false)=>{const e=$(id);if(e){e.textContent=s;e.className="message"+(ok?" success":"");}};
+
+ async function api(url,opt={}){
+  const h={...(opt.headers||{})};
+  if(opt.body)h["Content-Type"]="application/json";
+  if(token)h.Authorization=`Bearer ${token}`;
+  const r=await fetch(url,{...opt,cache:"no-store",headers:h});
+  const raw=await r.text();
+  const contentType=r.headers.get("content-type")||"unknown";
+  let d={};
+  try{d=raw?JSON.parse(raw):{};}catch(_){d={_nonJson:true,_preview:raw.slice(0,400)};}
+  if(!r.ok)throw Error(d.message||`Request failed (${r.status})`);
+  if(d._nonJson)throw Error(`Server returned non-JSON response.`);
+  return d;
+ }
+
+ function showApp(u){
+  user=u;$("loginView").hidden=true;$("dashboard").hidden=false;$("logout").hidden=false;
+  $("adminIdentity").textContent=u.name||u.email;
+  loadAll();
+ }
+
+ function logout(){
+  token="";user=null;localStorage.removeItem("tdh_token");
+  $("dashboard").hidden=true;$("loginView").hidden=false;$("logout").hidden=true;
+ }
+
+ $("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();msg("loginMessage","Signing in…");
+  try{
+   const d=await api("/api/auth/login",{method:"POST",body:JSON.stringify({email:$("email").value,password:$("password").value})});
+   if(d.user?.role!=="admin")throw Error("This account does not have administrator access.");
+   token=d.token;localStorage.setItem("tdh_token",token);showApp(d.user);
+  }catch(err){msg("loginMessage",err.message);}
+ });
+
  $("logout").addEventListener("click",logout);
+
  async function fetchAllPages(endpoint, key){
   const all=[];let page=1,pages=1;
   do{
@@ -20,59 +54,291 @@
   }while(page<=pages);
   return all;
  }
+
  async function loadAll(){await Promise.all([loadOverview(),loadOffers(),loadOrders(),loadClients()]);}
- async function loadOverview(){try{const d=await api("/api/admin/overview");$("statClients").textContent=d.users??0;$("statOrders").textContent=d.orders??0;$("statPending").textContent=d.pending??0;$("statRevenue").textContent=money(d.revenueTzs);$("statVerified").textContent=d.verifiedPayments??0;$("statOffers").textContent=d.activeOffers??0;renderBusinessOverview(d);}catch(e){msg("globalMessage",e.message);}}
- function renderBusinessOverview(d){const sales=d.networkSales||[],max=Math.max(1,...sales.map(x=>Number(x.revenueTzs||0)));$("networkSales").innerHTML=sales.length?sales.map(x=>`<div class="network-row"><div><b>${esc(x._id||"Other")}</b><span>${Number(x.orders||0)} verified sales · ${money(x.revenueTzs)}</span></div><div class="bar-track"><i style="width:${Math.max(2,Number(x.revenueTzs||0)/max*100)}%"></i></div></div>`).join(""):'<div class="empty">No provider-confirmed sales yet.</div>';const recent=d.recentOrders||[];$("recentSales").innerHTML=recent.length?recent.map(o=>`<div class="recent-row"><div><b>${esc(o.user?.name||"Customer")}</b><span>${esc(o.network)} · ${esc(o.package?.dataAmount||"Bundle")} · ${date(o.createdAt)}</span></div><strong>${money(o.amountTzs)}</strong><em class="pill ${o.paymentStatus==="completed"?"good":"warn"}">${esc((o.paymentStatus||"not_started").replaceAll("_"," "))}</em></div>`).join(""):'<div class="empty">No bundle purchases recorded yet.</div>'; }
- let offerDiagnostics=null;
+
+ async function loadOverview(){
+  try{
+   const d=await api("/api/admin/overview");
+   $("statClients").textContent=d.users??0;
+   $("statOrders").textContent=d.orders??0;
+   $("statPending").textContent=d.pending??0;
+   $("statRevenue").textContent=money(d.revenueTzs);
+   $("statVerified").textContent=d.verifiedPayments??0;
+   $("statOffers").textContent=d.activeOffers??0;
+   renderBusinessOverview(d);
+  }catch(e){msg("globalMessage",e.message);}
+ }
+
+ function renderBusinessOverview(d){
+  const sales=d.networkSales||[],max=Math.max(1,...sales.map(x=>Number(x.revenueTzs||0)));
+  $("networkSales").innerHTML=sales.length?sales.map(x=>`
+   <div class="network-row">
+    <div><b>${esc(x._id||"Other")}</b><span>${Number(x.orders||0)} verified sales · ${money(x.revenueTzs)}</span></div>
+    <div class="bar-track"><i style="width:${Math.max(2,Number(x.revenueTzs||0)/max*100)}%"></i></div>
+   </div>
+  `).join(""):'<div class="empty">No provider-confirmed sales recorded.</div>';
+
+  const recent=d.recentOrders||[];
+  $("recentSales").innerHTML=recent.length?recent.map(o=>`
+   <div class="recent-row">
+    <div><b>${esc(o.user?.name||"Customer")}</b><span>${esc(o.network)} · ${esc(o.package?.dataAmount||"Bundle")} · ${date(o.createdAt)}</span></div>
+    <strong>${money(o.amountTzs)}</strong>
+    <em class="pill ${o.paymentStatus==="completed"?"good":"warn"}">${esc((o.paymentStatus||"not_started").replaceAll("_"," "))}</em>
+   </div>
+  `).join(""):'<div class="empty">No recent bundle purchases recorded.</div>';
+ }
+
  async function loadOffers(){
   const body=$("offersRows");
-  body.innerHTML='<tr><td colspan="6" class="empty">Loading offers from the database…</td></tr>';
+  body.innerHTML='<tr><td colspan="6" class="empty">Loading offers from database…</td></tr>';
   try{
    const first=await api("/api/admin/packages?page=1&limit=250");
-   const firstList=Array.isArray(first.packages)?first.packages:(Array.isArray(first.offers)?first.offers:(Array.isArray(first.data?.packages)?first.data.packages:null));
-   if(!firstList) throw Error(`Admin API response shape mismatch (HTTP 200). Keys: ${Object.keys(first).join(", ")||"(none)"}. Body: ${JSON.stringify(first).slice(0,500)}. Check that Render is running the matching backend version at /api/admin/packages.`);
-   first.packages=firstList;
-   offers=[...first.packages];
-   offerDiagnostics=first.diagnostics||first.pagination||null;
+   const firstList=Array.isArray(first.packages)?first.packages:(Array.isArray(first.offers)?first.offers:null);
+   if(!firstList) throw Error("Admin API response shape mismatch.");
+   offers=[...firstList];
    const pages=Math.max(1,Number(first.pagination?.pages)||1);
    for(let page=2;page<=pages;page++){
     const next=await api(`/api/admin/packages?page=${page}&limit=250`);
-    const nextList=Array.isArray(next.packages)?next.packages:(Array.isArray(next.offers)?next.offers:(Array.isArray(next.data?.packages)?next.data.packages:null));
-    if(!nextList) throw Error(`Page ${page} response shape mismatch. Keys: ${Object.keys(next).join(", ")||"(none)"}. Body: ${JSON.stringify(next).slice(0,400)}`);
-    offers.push(...nextList);
+    const nextList=Array.isArray(next.packages)?next.packages:(Array.isArray(next.offers)?next.offers:null);
+    if(nextList) offers.push(...nextList);
    }
    renderOffers();
-   if(!offers.length){
-    const total=offerDiagnostics?.total ?? first.pagination?.total ?? "unknown";
-    const active=offerDiagnostics?.activeTotal;
-    body.innerHTML=`<tr><td colspan="6" class="empty">Admin API returned 0 offers (database total: ${esc(total)}${active!==undefined?`, active: ${esc(active)}`:""}). This is a server/database query mismatch, not a missing-page display issue.</td></tr>`;
-   }
   }catch(e){
    offers=[];
    body.innerHTML=`<tr><td colspan="6" class="empty">Offers could not be loaded: ${esc(e.message)}</td></tr>`;
    msg("globalMessage",`Could not load offers: ${e.message}`);
   }
  }
- function renderOffers(){const body=$("offersRows");if(!offers.length){body.innerHTML='<tr><td colspan="6" class="empty">No offers returned by the Admin API. Check the database diagnostics above.</td></tr>';return;}body.innerHTML=offers.map(p=>`<tr><td><b>${esc(p.network)} · ${esc(p.name)}</b><small>Created ${date(p.createdAt)}</small></td><td>${esc(p.dataAmount)}</td><td>${esc(p.validity)}</td><td><b>${money(p.priceTzs)}</b></td><td><span class="pill ${p.active?"good":"bad"}">${p.active?"Published":"Hidden"}</span></td><td><div class="actions"><button type="button" class="mini blue" data-edit="${esc(p._id)}">Edit offer</button><button type="button" class="mini" data-toggle="${esc(p._id)}">${p.active?"Hide":"Publish"}</button></div></td></tr>`).join("");}
- // Delegate offer-row actions so they continue working after every table refresh.
- $("offersRows").addEventListener("click",e=>{const edit=e.target.closest("[data-edit]");const toggle=e.target.closest("[data-toggle]");if(edit)editOffer(edit.dataset.edit);else if(toggle)toggleOffer(toggle.dataset.toggle);});
- function editOffer(id){const p=offers.find(x=>String(x._id)===String(id));if(!p){msg("globalMessage","That offer could not be found. Refresh the offers list and try again.");return;}editing=String(id);$("offerForm").reset();msg("offerMessage","");$("offerFormTitle").textContent="Edit bundle offer";$("offerNetwork").value=p.network;$("offerName").value=p.name;$("offerData").value=p.dataAmount;$("offerValidity").value=p.validity;$("offerPrice").value=p.priceTzs;$("offerCode").value=p.providerProductCode||"";$("offerFormWrap").hidden=false;$("offerForm").scrollIntoView({behavior:"smooth",block:"center"});}
- $("newOffer").onclick=()=>{editing=null;$("offerForm").reset();$("offerFormTitle").textContent="Create new offer";$("offerFormWrap").hidden=false;msg("offerMessage","");$("offerForm").scrollIntoView({behavior:"smooth",block:"center"});};
- $("cancelOffer").onclick=()=>{$("offerFormWrap").hidden=true;editing=null;$("offerForm").reset();msg("offerMessage","");};
- $("offerForm").addEventListener("submit",async e=>{e.preventDefault();const data={network:$("offerNetwork").value,name:$("offerName").value.trim(),dataAmount:$("offerData").value.trim(),validity:$("offerValidity").value.trim(),priceTzs:Number($("offerPrice").value),providerProductCode:$("offerCode").value.trim()};const submit=$("offerForm").querySelector("button[type=submit]");const wasEditing=Boolean(editing);submit.disabled=true;submit.textContent=wasEditing?"Updating offer…":"Saving offer…";try{const result=wasEditing?await api(`/api/admin/packages/${encodeURIComponent(editing)}`,{method:"PATCH",body:JSON.stringify(data)}):await api("/api/admin/packages",{method:"POST",body:JSON.stringify(data)});$("offerFormWrap").hidden=true;editing=null;await loadOffers();msg("globalMessage",wasEditing?"Offer updated successfully.":"Offer created successfully.",true);}catch(err){msg("offerMessage",err.message||"Could not save this offer. Please try again.");}finally{submit.disabled=false;submit.textContent="Save offer";}});
- async function toggleOffer(id){const p=offers.find(x=>x._id===id);try{await api(`/api/admin/packages/${id}`,{method:"PATCH",body:JSON.stringify({active:!p.active})});await loadOffers();}catch(e){msg("globalMessage",e.message);}}
- async function loadOrders(){try{orders=await fetchAllPages("/api/admin/orders","orders");renderOrders();}catch(e){msg("globalMessage",`Could not load all purchases: ${e.message}`);}}
- function renderOrders(){const term=$("orderSearch").value.toLowerCase(),filter=$("orderFilter").value;const list=orders.filter(o=>{const hay=[o._id,o.user?.name,o.user?.email,o.recipientPhone,o.paymentReference,o.mpesaReceiptNumber].join(" ").toLowerCase();return hay.includes(term)&&(!filter||o.paymentStatus===filter);});const body=$("ordersRows");if(!list.length){body.innerHTML='<tr><td colspan="6" class="empty">No matching purchases found.</td></tr>';return;}body.innerHTML=list.map(o=>`<tr><td><b>${esc(o._id)}</b><small>${esc(o.user?.name||"Unknown client")} · ${esc(o.user?.email||"")}</small><small>${date(o.createdAt)}</small></td><td><b>${esc(o.network)} · ${esc(o.package?.dataAmount||"Bundle")}</b><small>Recipient: ${esc(o.recipientPhone)}</small></td><td><b>${money(o.amountTzs)}</b><small>${esc(o.payerPhone||"Payer not recorded")}</small></td><td><span class="pill ${o.paymentStatus==="completed"?"good":o.paymentStatus==="failed"||o.paymentStatus==="verification_error"?"bad":"warn"}">${esc((o.paymentStatus||"not_started").replaceAll("_"," "))}</span><small>Ref: ${esc(o.paymentReference||"—")}</small>${o.mpesaReceiptNumber?`<small>Receipt: ${esc(o.mpesaReceiptNumber)}</small>`:""}</td><td><span class="pill">${esc((o.status||"").replaceAll("_"," "))}</span></td><td><div class="actions">${o.paymentStatus!=="completed"&&o.paymentReference?`<button class="mini blue" data-verify="${o._id}">Verify payment</button>`:""}<select class="mini" data-status="${o._id}" aria-label="Order status"><option value="">Update status</option>${["awaiting_payment","paid","processing","completed","failed","refunded"].map(s=>`<option value="${s}" ${o.status===s?"selected":""} ${["paid","processing","completed"].includes(s)&&o.paymentStatus!=="completed"?"disabled":""}>${s.replaceAll("_"," ")}</option>`).join("")}</select></div></td></tr>`).join("");body.querySelectorAll("[data-verify]").forEach(b=>b.onclick=()=>verifyOrder(b.dataset.verify,b));body.querySelectorAll("[data-status]").forEach(s=>s.onchange=()=>{if(s.value)updateOrderStatus(s.dataset.status,s.value);});}
- async function verifyOrder(id,button){button.disabled=true;button.textContent="Checking…";try{const d=await api(`/api/admin/orders/${id}/verify-payment`,{method:"POST",body:"{}"});await loadOrders();await loadOverview();msg("globalMessage",d.message||"Payment verification completed.",d.order?.paymentStatus==="completed");}catch(e){msg("globalMessage",e.message);}finally{button.disabled=false;button.textContent="Verify payment";}}
- async function updateOrderStatus(id,status){try{await api(`/api/admin/orders/${id}/status`,{method:"PATCH",body:JSON.stringify({status})});await loadOrders();await loadOverview();msg("globalMessage","Order status updated.",true);}catch(e){msg("globalMessage",e.message);await loadOrders();}}
- async function loadClients(){try{clients=await fetchAllPages("/api/admin/clients","clients");renderClients();}catch(e){msg("globalMessage",`Could not load all clients: ${e.message}`);}}
- function renderClients(){const term=$("clientSearch").value.toLowerCase();const list=clients.filter(c=>[c.name,c.email,c.phone].join(" ").toLowerCase().includes(term));const body=$("clientsRows");if(!list.length){body.innerHTML='<tr><td colspan="5" class="empty">No matching clients found.</td></tr>';return;}body.innerHTML=list.map(c=>`<tr><td><b>${esc(c.name)}</b><small>${esc(c.email)}</small></td><td>${esc(c.phone)}</td><td>${date(c.createdAt)}</td><td><span class="pill ${c.active?"good":"bad"}">${c.active?"Active":"Suspended"}</span></td><td><button class="mini ${c.active?"red":"blue"}" data-client="${c._id}" data-active="${c.active}">${c.active?"Suspend":"Reactivate"}</button></td></tr>`).join("");body.querySelectorAll("[data-client]").forEach(b=>b.onclick=()=>toggleClient(b.dataset.client,b.dataset.active==="true"));}
- async function toggleClient(id,active){const action=active?"suspend":"reactivate";if(!confirm(`Are you sure you want to ${action} this client account?`))return;try{await api(`/api/admin/clients/${id}`,{method:"PATCH",body:JSON.stringify({active:!active})});await loadClients();await loadOverview();}catch(e){msg("globalMessage",e.message);}}
- document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));["offers","orders","clients"].forEach(k=>$(k+"Panel").hidden=k!==b.dataset.tab);});
- // Bind the existing Refresh offers control in admin.html.
- const offerRefresh=$("refreshOffers");
- if(offerRefresh) offerRefresh.addEventListener("click",loadOffers);
- $("refreshOrders").onclick=loadOrders;$("refreshClients").onclick=loadClients;$("orderSearch").oninput=renderOrders;$("orderFilter").onchange=renderOrders;$("clientSearch").oninput=renderClients;
- async function restore(){if(!token)return;try{const d=await api("/api/auth/me");if(d.user?.role!=="admin")throw Error();showApp(d.user);}catch{logout();}}
+
+ function renderOffers(){
+  const body=$("offersRows");
+  if(!offers.length){
+   body.innerHTML='<tr><td colspan="6" class="empty">No data bundle offers found. Click <b> Create offer</b> above to create your first package.</td></tr>';
+   return;
+  }
+  body.innerHTML=offers.map(p=>`
+   <tr>
+    <td><b>${esc(p.network)} · ${esc(p.name)}</b><small>Code: ${esc(p.providerProductCode||"N/A")}</small></td>
+    <td>${esc(p.dataAmount)}</td>
+    <td>${esc(p.validity)}</td>
+    <td><b>${money(p.priceTzs)}</b></td>
+    <td><span class="pill ${p.active?"good":"bad"}">${p.active?"Published":"Hidden"}</span></td>
+    <td>
+     <div class="actions">
+      <button type="button" class="mini blue" data-edit="${esc(p._id)}">Edit</button>
+      <button type="button" class="mini" data-toggle="${esc(p._id)}">${p.active?"Hide":"Publish"}</button>
+      <button type="button" class="mini red" data-delete="${esc(p._id)}">Delete</button>
+     </div>
+    </td>
+   </tr>
+  `).join("");
+ }
+
+ $("offersRows").addEventListener("click",e=>{
+  const edit=e.target.closest("[data-edit]");
+  const toggle=e.target.closest("[data-toggle]");
+  const del=e.target.closest("[data-delete]");
+  if(edit) editOffer(edit.dataset.edit);
+  else if(toggle) toggleOffer(toggle.dataset.toggle);
+  else if(del) deleteOffer(del.dataset.delete);
+ });
+
+ function editOffer(id){
+  const p=offers.find(x=>String(x._id)===String(id));
+  if(!p){msg("globalMessage","That offer could not be found.");return;}
+  editing=String(id);
+  $("offerForm").reset();
+  msg("offerMessage","");
+  $("offerFormTitle").textContent="Edit bundle offer";
+  $("offerNetwork").value=p.network;
+  $("offerName").value=p.name;
+  $("offerData").value=p.dataAmount;
+  $("offerValidity").value=p.validity;
+  $("offerPrice").value=p.priceTzs;
+  $("offerCode").value=p.providerProductCode||"";
+  $("offerFormWrap").hidden=false;
+  $("offerForm").scrollIntoView({behavior:"smooth",block:"center"});
+ }
+
+ $("newOffer").onclick=()=>{
+  editing=null;
+  $("offerForm").reset();
+  $("offerFormTitle").textContent="Create new offer";
+  $("offerFormWrap").hidden=false;
+  msg("offerMessage","");
+  $("offerForm").scrollIntoView({behavior:"smooth",block:"center"});
+ };
+
+ $("cancelOffer").onclick=()=>{
+  $("offerFormWrap").hidden=true;
+  editing=null;
+  $("offerForm").reset();
+  msg("offerMessage","");
+ };
+
+ $("offerForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const data={
+   network:$("offerNetwork").value,
+   name:$("offerName").value.trim(),
+   dataAmount:$("offerData").value.trim(),
+   validity:$("offerValidity").value.trim(),
+   priceTzs:Number($("offerPrice").value),
+   providerProductCode:$("offerCode").value.trim()
+  };
+  const submit=$("offerForm").querySelector("button[type=submit]");
+  const wasEditing=Boolean(editing);
+  submit.disabled=true;
+  submit.textContent=wasEditing?"Updating offer…":"Saving offer…";
+  try{
+   if(wasEditing){
+    await api(`/api/admin/packages/${encodeURIComponent(editing)}`,{method:"PATCH",body:JSON.stringify(data)});
+   }else{
+    await api("/api/admin/packages",{method:"POST",body:JSON.stringify(data)});
+   }
+   $("offerFormWrap").hidden=true;
+   editing=null;
+   await loadOffers();
+   await loadOverview();
+   msg("globalMessage",wasEditing?"Offer updated successfully.":"Offer created successfully.",true);
+  }catch(err){
+   msg("offerMessage",err.message||"Could not save this offer.");
+  }finally{
+   submit.disabled=false;
+   submit.textContent="Save offer";
+  }
+ });
+
+ async function toggleOffer(id){
+  const p=offers.find(x=>String(x._id)===String(id));
+  if(!p) return;
+  try{
+   await api(`/api/admin/packages/${id}`,{method:"PATCH",body:JSON.stringify({active:!p.active})});
+   await loadOffers();
+   await loadOverview();
+  }catch(e){msg("globalMessage",e.message);}
+ }
+
+ async function deleteOffer(id){
+  const p=offers.find(x=>String(x._id)===String(id));
+  if(!p) return;
+  if(!confirm(`Are you sure you want to permanently delete the offer "${p.network} - ${p.name}"?`)) return;
+  try{
+   await api(`/api/admin/packages/${id}`,{method:"DELETE"});
+   await loadOffers();
+   await loadOverview();
+   msg("globalMessage","Offer deleted successfully.",true);
+  }catch(e){msg("globalMessage",`Could not delete offer: ${e.message}`);}
+ }
+
+ async function loadOrders(){
+  try{orders=await fetchAllPages("/api/admin/orders","orders");renderOrders();}
+  catch(e){msg("globalMessage",`Could not load purchases: ${e.message}`);}
+ }
+
+ function renderOrders(){
+  const term=$("orderSearch").value.toLowerCase(),filter=$("orderFilter").value;
+  const list=orders.filter(o=>{
+   const hay=[o._id,o.user?.name,o.user?.email,o.recipientPhone,o.paymentReference,o.mpesaReceiptNumber].join(" ").toLowerCase();
+   return hay.includes(term)&&(!filter||o.paymentStatus===filter);
+  });
+  const body=$("ordersRows");
+  if(!list.length){body.innerHTML='<tr><td colspan="6" class="empty">No matching bundle purchases.</td></tr>';return;}
+  body.innerHTML=list.map(o=>`
+   <tr>
+    <td><b>${esc(o._id)}</b><small>${esc(o.user?.name||"Client")} · ${esc(o.user?.email||"")}</small><small>${date(o.createdAt)}</small></td>
+    <td><b>${esc(o.network)} · ${esc(o.package?.dataAmount||"Bundle")}</b><small>Recipient: ${esc(o.recipientPhone)}</small></td>
+    <td><b>${money(o.amountTzs)}</b><small>${esc(o.payerPhone||"Payer not recorded")}</small></td>
+    <td>
+     <span class="pill ${o.paymentStatus==="completed"?"good":o.paymentStatus==="failed"||o.paymentStatus==="verification_error"?"bad":"warn"}">${esc((o.paymentStatus||"not_started").replaceAll("_"," "))}</span>
+     <small>Ref: ${esc(o.paymentReference||"—")}</small>
+     ${o.mpesaReceiptNumber?`<small>Receipt: ${esc(o.mpesaReceiptNumber)}</small>`:""}
+    </td>
+    <td><span class="pill">${esc((o.status||"").replaceAll("_"," "))}</span></td>
+    <td>
+     <div class="actions">
+      ${o.paymentStatus!=="completed"&&o.paymentReference?`<button class="mini blue" data-verify="${o._id}">Verify payment</button>`:""}
+      <select class="mini" data-status="${o._id}" aria-label="Order status">
+       <option value="">Update status</option>
+       ${["awaiting_payment","paid","processing","completed","failed","refunded"].map(s=>`<option value="${s}" ${o.status===s?"selected":""} ${["paid","processing","completed"].includes(s)&&o.paymentStatus!=="completed"?"disabled":""}>${s.replaceAll("_"," ")}</option>`).join("")}
+      </select>
+     </div>
+    </td>
+   </tr>
+  `).join("");
+  body.querySelectorAll("[data-verify]").forEach(b=>b.onclick=()=>verifyOrder(b.dataset.verify,b));
+  body.querySelectorAll("[data-status]").forEach(s=>s.onchange=()=>{if(s.value)updateOrderStatus(s.dataset.status,s.value);});
+ }
+
+ async function verifyOrder(id,button){
+  button.disabled=true;button.textContent="Checking…";
+  try{
+   const d=await api(`/api/admin/orders/${id}/verify-payment`,{method:"POST",body:"{}"});
+   await loadOrders();await loadOverview();
+   msg("globalMessage",d.message||"Payment verification completed.",d.order?.paymentStatus==="completed");
+  }catch(e){msg("globalMessage",e.message);}
+  finally{button.disabled=false;button.textContent="Verify payment";}
+ }
+
+ async function updateOrderStatus(id,status){
+  try{
+   await api(`/api/admin/orders/${id}/status`,{method:"PATCH",body:JSON.stringify({status})});
+   await loadOrders();await loadOverview();
+   msg("globalMessage","Order status updated.",true);
+  }catch(e){msg("globalMessage",e.message);await loadOrders();}
+ }
+
+ async function loadClients(){
+  try{clients=await fetchAllPages("/api/admin/clients","clients");renderClients();}
+  catch(e){msg("globalMessage",`Could not load clients: ${e.message}`);}
+ }
+
+ function renderClients(){
+  const term=$("clientSearch").value.toLowerCase();
+  const list=clients.filter(c=>[c.name,c.email,c.phone].join(" ").toLowerCase().includes(term));
+  const body=$("clientsRows");
+  if(!list.length){body.innerHTML='<tr><td colspan="5" class="empty">No matching clients found.</td></tr>';return;}
+  body.innerHTML=list.map(c=>`
+   <tr>
+    <td><b>${esc(c.name)}</b><small>${esc(c.email)}</small></td>
+    <td>${esc(c.phone)}</td>
+    <td>${date(c.createdAt)}</td>
+    <td><span class="pill ${c.active?"good":"bad"}">${c.active?"Active":"Suspended"}</span></td>
+    <td><button class="mini ${c.active?"red":"blue"}" data-client="${c._id}" data-active="${c.active}">${c.active?"Suspend":"Reactivate"}</button></td>
+   </tr>
+  `).join("");
+  body.querySelectorAll("[data-client]").forEach(b=>b.onclick=()=>toggleClient(b.dataset.client,b.dataset.active==="true"));
+ }
+
+ async function toggleClient(id,active){
+  const action=active?"suspend":"reactivate";
+  if(!confirm(`Are you sure you want to ${action} this client account?`))return;
+  try{
+   await api(`/api/admin/clients/${id}`,{method:"PATCH",body:JSON.stringify({active:!active})});
+   await loadClients();await loadOverview();
+  }catch(e){msg("globalMessage",e.message);}
+ }
+
+ document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));
+  ["offers","orders","clients"].forEach(k=>$(k+"Panel").hidden=k!==b.dataset.tab);
+ });
+
+ $("refreshOffers").addEventListener("click",loadOffers);
+ $("refreshOrders").onclick=loadOrders;
+ $("refreshClients").onclick=loadClients;
+ $("orderSearch").oninput=renderOrders;
+ $("orderFilter").onchange=renderOrders;
+ $("clientSearch").oninput=renderClients;
+
+ async function restore(){
+  if(!token)return;
+  try{
+   const d=await api("/api/auth/me");
+   if(d.user?.role!=="admin")throw Error();
+   showApp(d.user);
+  }catch{logout();}
+ }
  restore();
 })();
