@@ -6,7 +6,7 @@
 .panel-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 @media(max-width:640px){.panel-actions{width:100%;justify-content:flex-start}.panel-actions .btn{flex:1}}
 
-/* Starling Control Centre refresh */
+/* Control Centre refresh */
 :root{--ink:#102650;--muted:#71809a;--brand:#0759f7;--stroke:#e4eaf4;--surface:#fff;--canvas:#f4f7fc}
 body{background:radial-gradient(ellipse at 85% 0%,#e8f0ff 0,transparent 38%),var(--canvas);color:var(--ink)}
 .top{height:76px;padding-inline:max(4%,calc((100% - 1440px)/2));box-shadow:0 5px 24px #173b7010;border-color:#e8edf5}
@@ -28,3 +28,29 @@ body{background:radial-gradient(ellipse at 85% 0%,#e8f0ff 0,transparent 38%),var
 @media(min-width:1100px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.wrap{padding:0 13px;margin:18px auto}.top{height:66px;padding:0 14px}.welcome{padding:21px;border-radius:16px}.welcome h1{font-size:27px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats article{min-height:96px}.business-block{padding:15px}.panel{padding:14px}.tabs{width:100%;overflow:auto}.tab{flex:1;padding:10px 12px}.login-card{border-radius:18px}}
 @media(max-width:390px){.stats b{font-size:19px}.stats span{font-size:9px}.top-right{gap:7px}}
+
+/* STARLINK DATA SOLUTIONS — admin monochrome control centre */
+:root{--ink:#101114;--muted:#747983;--brand:#111317;--stroke:#e5e7eb;--surface:#fff;--canvas:#f4f5f6}
+body{background:radial-gradient(ellipse at 90% 0%,#e9eaec 0,transparent 38%),#f5f6f7;color:#111317}
+.top{background:#fff;border-color:#e5e7eb;box-shadow:0 4px 18px #00000008}
+.brand{color:#111}
+.admin-logo{width:34px;height:42px;object-fit:contain}
+.brand b{font-size:16px;letter-spacing:1.6px}
+.brand small{letter-spacing:1.4px}
+.eyebrow{color:#666}
+.primary{background:#111317;color:#fff}
+.welcome{background:linear-gradient(115deg,#050607,#22262d 70%,#090a0c);box-shadow:0 16px 35px #00000015}
+.welcome .eyebrow{color:#bfc3ca}
+.stats article,.business-block,.panel{border-color:#e6e7e9;box-shadow:0 8px 24px #00000006}
+.stats b{color:#111}
+.tab.active{background:#111;color:#fff}
+.offer-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px 15px;background:#f7f7f8;border:1px solid #e8e8ea;border-radius:11px;margin:12px 0;font-size:12px}
+.offer-summary span{color:#737780}
+.mini.danger{background:#fff0f0;color:#b4232c;border:1px solid #ffd4d6}
+.mini.danger:hover{background:#ffe2e3}
+.btn.primary{background:#111317}
+.btn.ghost{color:#17191d;border-color:#d7d9dd}
+.table-wrap{border-color:#e6e7e9}
+th{background:#f4f5f6;color:#42464d}
+tbody tr:hover{background:#fafafa}
+@media(max-width:760px){.offer-summary{align-items:flex-start;flex-direction:column}}

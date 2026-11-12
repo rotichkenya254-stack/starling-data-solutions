@@ -29,7 +29,7 @@
   });
   on("registerOpen","click",()=>openAuth("register"));
   on("accountLogin","click",()=>openAuth("login"));
-  on("forgotPassword","click",()=>toast("Please contact support@starling.co.tz for password assistance."));
+  on("forgotPassword","click",()=>toast("Please contact support@Starlink.co.tz for password assistance."));
   on("modalClose","click",()=>hide("authModal"));
   on("checkoutClose","click",()=>hide("checkoutModal"));
   on("switchAuth","click",()=>openAuth(authMode==="register"?"login":"register"));
@@ -55,7 +55,7 @@
     const response=await fetch(url,{...options,headers}); const data=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(data.message||`Request failed (${response.status}).`);return data;
   }
-  function openAuth(mode){authMode=mode;show("authModal");text("authTitle",mode==="register"?"Create your account":"Welcome back");text("authEyebrow",mode==="register"?"WELCOME TO STARLING":"YOUR STARLING ACCOUNT");text("authDesc",mode==="register"?"Manage your bundles and orders in one place.":"Sign in to view your account and orders.");if($("nameField"))$("nameField").hidden=mode!=="register";if($("phoneField"))$("phoneField").hidden=mode!=="register";$("authName").required=mode==="register";$("authPhone").required=mode==="register";text("authSubmit",mode==="register"?"Create account":"Log in");text("switchText",mode==="register"?"Already have an account?":"New to Starling?");text("switchAuth",mode==="register"?"Log in":"Create account");text("authMessage","");
+  function openAuth(mode){authMode=mode;show("authModal");text("authTitle",mode==="register"?"Create your account":"Welcome back");text("authEyebrow",mode==="register"?"WELCOME TO Starlink":"YOUR Starlink ACCOUNT");text("authDesc",mode==="register"?"Manage your bundles and orders in one place.":"Sign in to view your account and orders.");if($("nameField"))$("nameField").hidden=mode!=="register";if($("phoneField"))$("phoneField").hidden=mode!=="register";$("authName").required=mode==="register";$("authPhone").required=mode==="register";text("authSubmit",mode==="register"?"Create account":"Log in");text("switchText",mode==="register"?"Already have an account?":"New to Starlink?");text("switchAuth",mode==="register"?"Log in":"Create account");text("authMessage","");
     if ($("authPassword")) $("authPassword").value = "";
     const firstField = mode === "register" ? $("authName") : $("authEmail");
     if (firstField) setTimeout(() => firstField.focus(), 0);
@@ -87,7 +87,7 @@
       text("ordersList","Sign in to view your transactions.");
       return;
     }
-    text("accountWelcome","Your Starling account details and order history.");
+    text("accountWelcome","Your Starlink account details and order history.");
     text("profileName",user.name||"Customer");
     text("profileEmail",user.email||"");
     text("profilePhone",user.phone||"");
