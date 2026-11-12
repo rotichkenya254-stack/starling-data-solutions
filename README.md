@@ -1,4 +1,4 @@
-# Starling Data Solutions Tanzania
+# Starlink Data Solutions Tanzania
 
 A mobile-first Tanzania data bundle storefront starter for Vodacom, Halotel, Airtel and YAS. Includes customer registration/login, package catalogue, order creation, basic admin APIs and MongoDB models.
 
@@ -56,8 +56,8 @@ The first administrator account is seeded on startup if `ADMIN_EMAIL` and `ADMIN
 ### Admin (admin Bearer token)
 - `GET /api/admin/overview`
 - `GET /api/admin/orders`
-- `POST /api/admin/packages`
-- `PATCH /api/admin/packages/:id`
+- `GET /api/admin/packages` (all offers, including hidden offers)\n- `POST /api/admin/packages`
+- `PATCH /api/admin/packages/:id` (edit offer fields / price / visibility)\n- `DELETE /api/admin/packages/:id` (permanently delete an offer)
 - `PATCH /api/admin/orders/:id/status`
 
 ### Payments / OptimaPay Bridge — Tanzania Global API
@@ -138,3 +138,11 @@ This version exports the Express app from the root `server.js` for Vercel's Expr
 Use a MongoDB Atlas database reachable from Vercel. For Atlas network access, configure an appropriate allowlist for your deployment. A broad `0.0.0.0/0` rule is easier to start with but exposes the database endpoint to connection attempts from anywhere; use a strong database password, least-privilege database user, and a more restrictive/static egress arrangement where available.
 
 Do not enable payments until OptimaPay confirms Tanzanian/cross-border support and the provider status schema has been tested end-to-end. Bundle supplier credentials are separate and must not be added until a legitimate distributor contract and API are available. Payment initiation is implemented for the Tanzania Global API but remains disabled until valid credentials are configured and `OPTIMAPAY_TANZANIA_ENABLED=true`. Automatic data-bundle fulfilment still requires a separate legitimate supplier API and is not implemented.
+
+## Brand and trademark note
+
+The interface loads the Starlink 2024 logo asset from Wikimedia Commons (source: https://commons.wikimedia.org/wiki/File:Starlink_Logo_2024.svg; author attribution on source page: Starlink Services, LLC). The logo image is loaded from Wikimedia's public upload CDN, so an internet connection is required to display the mark. Starlink is a SpaceX trademark. This independent data-bundle storefront is not affiliated with, sponsored by, or endorsed by SpaceX or Starlink Services, LLC. Obtain any required trademark permission before public commercial use.
+
+## Offer management
+
+After signing in at `/admin`, the Offers tab loads every package directly from MongoDB, including hidden offers. Administrators can create offers, edit network/name/data/validity/price/provider code, hide or publish offers, and permanently delete offers. Deletion removes the catalogue record only; existing order records are retained. Price and visibility edits are restricted to an allowlist of package fields on the server.

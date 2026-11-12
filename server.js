@@ -36,7 +36,7 @@ app.use("/api", rateLimit({ windowMs: 15 * 60 * 1000, limit: 250, standardHeader
 app.use("/api/auth", rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: "draft-7", legacyHeaders: false }));
 app.get("/api/health", (_req, res) => res.json({
   ok: true,
-  service: "Starling Data Solutions Tanzania",
+  service: "Starlink Data Solutions Tanzania",
   backend: "admin-routing-fix-2026-11-10",
   database: mongoose.connection.readyState === 1 ? "connected" : "not_connected"
 }));
@@ -83,7 +83,7 @@ app.use("/api/payments", paymentRoutes);
 // This also makes missing/mis-deployed API routes immediately diagnosable.
 app.use("/api", (_req, res) => res.status(404).json({
   message: "API endpoint not found. Confirm the latest backend deployment is active.",
-  service: "Starling Data Solutions Tanzania"
+  service: "Starlink Data Solutions Tanzania"
 }));
 
 // Serve frontend assets only after all API routes have had a chance to match.
@@ -95,7 +95,7 @@ app.get("*", (_req, res) => res.sendFile(path.join(__dirname, "public", "index.h
 // `npm start` still works for a conventional local Node server.
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`Starling Data Solutions Tanzania running on port ${PORT}`));
+  app.listen(PORT, () => console.log(`Starlink Data Solutions Tanzania running on port ${PORT}`));
 }
 
 module.exports = app;

@@ -1,8 +1,8 @@
 {
-  "name": "starling-data-solutions-tanzania",
-  "version": "1.1.0",
+  "name": "Starlink-data-solutions-tanzania",
+  "version": "1.2.0",
   "private": true,
-  "description": "Starling Data Solutions Tanzania data bundles storefront with OptimaPay Tanzania Global API collection integration",
+  "description": "Starlink Data Solutions Tanzania mobile data bundle storefront with admin offer management and OptimaPay Tanzania Global API integration",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
